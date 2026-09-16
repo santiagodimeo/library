@@ -1,0 +1,218 @@
+<title>Outbox vs. CDC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  /* Library investigation — shared design system. Fill, don't redesign. */
+  :root {
+    --ground: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1a1e1c;
+    --muted: #5b6560;
+    --rule: #d9ded9;
+    --accent: #1e5a73;
+    --conflicts: #a5372a;
+    --extends: #8a5a00;
+    --confirms: #2e6a4a;
+    --new: #55606a;
+    --t1: #2e6a4a;
+    --t2: #2f5b8f;
+    --t3: #8a5a00;
+    --serif: "Literata", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+      --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+      --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+    --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+    --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 1.0625rem/1.68 var(--serif);
+    font-optical-sizing: auto;
+    padding: 0 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 42rem; margin: 0 auto; padding-block: 56px 88px; display: grid; gap: 40px; }
+  a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .eyebrow, .meta, .label, th, .chip, sup, .sources, .filed {
+    font-family: var(--mono);
+  }
+  header { display: grid; gap: 14px; }
+  .eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    font: 600 clamp(2rem, 5vw, 2.6rem)/1.12 var(--sans);
+    letter-spacing: -.015em; margin: 0; text-wrap: balance;
+  }
+  .question { font-style: italic; color: var(--muted); margin: 0; font-size: 1.125rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .8125rem; color: var(--muted); margin: 4px 0 0; padding: 0; list-style: none; }
+  .meta strong { color: var(--ink); font-weight: 500; }
+
+  .bottom-line {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 24px;
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+  .bottom-line p { margin: 0; }
+  .label { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+
+  section { display: grid; gap: 14px; }
+  h2 { font: 600 1.3rem/1.3 var(--sans); margin: 0; text-wrap: balance; letter-spacing: -.005em; }
+  section p { margin: 0; }
+  sup { font-size: .68em; line-height: 0; }
+  sup a { text-decoration: none; padding: 0 1px; }
+  blockquote { margin: 0; padding-left: 16px; border-left: 2px solid var(--rule); color: var(--muted); }
+
+  .table-wrap { overflow-x: auto; border-top: 1px solid var(--ink); }
+  table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.45; }
+  th { text-align: left; font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); }
+  td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td:first-child { min-width: 14rem; }
+  td:last-child { color: var(--muted); min-width: 10rem; }
+
+  .chip {
+    display: inline-block; font-size: .7rem; font-weight: 500; letter-spacing: .04em;
+    padding: 2px 7px; border-radius: 3px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .v-conflicts { color: var(--conflicts); }
+  .v-extends { color: var(--extends); }
+  .v-confirms { color: var(--confirms); }
+  .v-new { color: var(--new); }
+  .t1 { color: var(--t1); }
+  .t2 { color: var(--t2); }
+  .t3 { color: var(--t3); }
+
+  ul.open { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+  .sources { margin: 0; padding-left: 2.2em; font-size: .8125rem; line-height: 1.55; display: grid; gap: 10px; color: var(--muted); }
+  .sources li::marker { color: var(--muted); }
+  .sources .title { color: var(--ink); }
+  .sources a { word-break: break-word; }
+  .sources li:target { color: var(--ink); }
+
+  footer.filed { border-top: 1px solid var(--rule); padding-top: 16px; font-size: .75rem; color: var(--muted); display: grid; gap: 4px; }
+  footer.filed code { font-family: inherit; color: var(--ink); }
+
+  @media (max-width: 480px) {
+    main { padding-block: 32px 64px; gap: 32px; }
+    body { font-size: 1rem; }
+    .bottom-line { padding: 18px; font-size: 1.0625rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">Investigation · Software</span>
+    <h1>Outbox vs. CDC</h1>
+    <p class="question">When should a service publish domain events through a transactional outbox, and when through log-based change data capture on its own tables?</p>
+    <ul class="meta">
+      <li>16 Sep 2026</li>
+      <li>6 min read</li>
+      <li>Confidence <strong>Medium</strong> — the mechanisms rest on T1 and T2 production write-ups, but no registry source compares the two head to head, and the exactly-once result is T3</li>
+    </ul>
+  </header>
+
+  <div class="bottom-line">
+    <span class="label">Bottom line</span>
+    <p>Use a transactional outbox when you own the writing service and consumers need domain events: named, intent-bearing messages that act as a contract. Use log-based CDC on the tables themselves when you need to replicate state out of databases you can't or shouldn't modify, such as caches, search indexes, and legacy systems. Either way delivery is at-least-once and ordered only per shard, so consumers must be idempotent; the choice is about what goes into the log, not about reliability.</p>
+  </div>
+
+  <section>
+    <h2>Both fix the dual write by trusting the database's commit</h2>
+    <p>The failure both patterns address is the dual write: a service commits to its database and then publishes to a broker, and a crash between the two leaves the systems disagreeing about what happened <sup><a href="#s1">1</a></sup>. The outbox pattern writes the business row and an event row in one local ACID transaction, so either both exist or neither does; a separate relay publishes the event rows afterward <sup><a href="#s1">1</a></sup>.</p>
+    <p>Log-based CDC skips the extra table. It reads the database's own transaction log and turns committed changes into a stream <sup><a href="#s2">2</a></sup><sup><a href="#s3">3</a></sup>. Facebook built Wormhole this way because interposing on writes across its storage fleet "would require modifications across the software stack, which is error-prone and might degrade latency and availability" <sup><a href="#s2">2</a></sup>. The same paper rejects application polling: long intervals serve stale data, and short ones interfere with production load <sup><a href="#s2">2</a></sup>.</p>
+    <p>So the two patterns share a core idea: the commit is the source of truth, and publishing is derived from it later. What differs is what the log contains.</p>
+  </section>
+  <section>
+    <h2>Outbox wins when the event is a contract, not a row</h2>
+    <p>A domain event records something that happened that the business cares about, such as "make purchase" against a credit card, along with when it happened and when the system noticed <sup><a href="#s4">4</a></sup>. That is intent. A row change is a result. When consumers act on events rather than just copying data, the event's name and payload are an interface.</p>
+    <p>With an outbox, application code writes that event explicitly, inside the transaction that caused it <sup><a href="#s1">1</a></sup>. The payload can be shaped for consumers and versioned on its own schedule. CDC on domain tables emits what was stored: Wormhole, for example, encodes each update as the key-value pairs of the written data plus metadata <sup><a href="#s2">2</a></sup>. Consumers then have to infer intent from state changes. That inference is our reading of the mechanism, not a measured result from any source here.</p>
+    <p>Fowler's split between event notification and event-carried state transfer maps onto this. Notification keeps coupling low but can hide logic that spans several events. State transfer lets receivers hold their own copy, which improves resilience and latency at the cost of "lots of data schlepped around and lots of copies" <sup><a href="#s5">5</a></sup>. An outbox can carry either kind. Row-level CDC is inherently state transfer.</p>
+    <p>The outbox has real costs. Someone has to manage outbox table growth, keep the relay reliable, handle retries, and make consumers idempotent. And it doesn't apply when the store has no transactions or the caller needs synchronous completion <sup><a href="#s1">1</a></sup>.</p>
+  </section>
+  <section>
+    <h2>CDC wins when you can't or shouldn't touch the writer</h2>
+    <p>CDC's strength is that the writer doesn't change. Wormhole reads logs from MySQL, HDFS, and RocksDB, and in 2015 moved over 35 GB/s in steady state (50 million messages/s) with bursts to 200 GB/s during failure recovery, feeding cache invalidation, News Feed, and search indexes <sup><a href="#s2">2</a></sup>. Netflix's DBLog keeps heterogeneous stores in sync, such as MySQL or PostgreSQL feeding Elasticsearch, and was in production across tens of microservices in 2020 <sup><a href="#s3">3</a></sup> <em>(unreplicated)</em>.</p>
+    <p>Legacy displacement is the other clear win. The Patterns of Legacy Displacement authors report good results using Debezium to turn a legacy database's transaction log into a Kafka stream that new applications consume <sup><a href="#s6">6</a></sup>. Among CDC styles (timestamp polling, triggers, log reading), log-based capture puts the least load on the primary database <sup><a href="#s7">7</a></sup>.</p>
+    <p>These are all replication and derivation use cases: indexes, caches, and read models where the consumer wants the current state, not a business narrative.</p>
+  </section>
+  <section>
+    <h2>The relay is the same problem either way</h2>
+    <p>The distinction blurs in practice, because a common outbox relay is CDC. The relay can poll the outbox table, or a tool like Debezium can tail the log and publish outbox rows without a custom poller <sup><a href="#s1">1</a></sup>. So the real choice is whether the log you tail contains domain rows or event rows.</p>
+    <p>The delivery properties converge too. Outbox delivery is at-least-once, and duplicates are possible <sup><a href="#s1">1</a></sup>. Wormhole guarantees at-least-once delivery, in order within a shard, and "no ordering guarantee between updates that belong to different shards" <sup><a href="#s2">2</a></sup>. That works because updates for one entity live on one shard <sup><a href="#s2">2</a></sup>. The same rule applies to either pattern: pick a partition key that keeps each entity's events together.</p>
+    <p>Duplicates push the work to consumers. The AWS Builders' Library pattern is a caller-supplied idempotency token, recorded atomically with the request and kept for the resource's lifetime plus a margin, so a replay returns the original result instead of repeating the effect <sup><a href="#s8">8</a></sup>.</p>
+    <p>A 2026 preprint argues there's no shortcut. It proves in Isabelle/HOL that any recovery policy using only source-side state must either duplicate an effect or drop one after some crash. It adds that bounded dedup state and truncated source history limit how long any exactly-once guarantee lasts <sup><a href="#s9">9</a></sup> <em>(unreplicated; abstract only)</em>.</p>
+  </section>
+  <section>
+    <h2>Where it breaks: logs expire and snapshots cost</h2>
+    <p>CDC depends on the log still being there. Wormhole's guarantees "do not hold if an update is not available in the datastore log," and its datastores typically kept 1–2 days; a subscriber that falls further behind gets a data-loss callback <sup><a href="#s2">2</a></sup>. DBLog's authors note that transaction logs don't hold full history, so every CDC system also needs a way to capture full table state for bootstrap and repair <sup><a href="#s3">3</a></sup> <em>(unreplicated)</em>.</p>
+    <p>That snapshot step has costs. In 2020, DBLog reported that Debezium's consistent snapshot used table locks, which on MySQL RDS could block writes until every row was selected. DBLog's watermark approach interleaves chunked selects with log events and takes no locks <sup><a href="#s3">3</a></sup> <em>(unreplicated; tool behavior may have changed since)</em>.</p>
+    <p>An outbox avoids the snapshot question for events but not the recovery gap. Its relay checkpoint and the broker are still two durable steps, which is exactly the gap the preprint formalizes <sup><a href="#s9">9</a></sup>. And an outbox only captures what code remembers to write. A migration script or manual fix that bypasses the application emits no event, while CDC on the tables would see it. That follows from the mechanisms in <sup><a href="#s1">1</a></sup> and <sup><a href="#s2">2</a></sup>, not from a measured incident.</p>
+  </section>
+
+  <section>
+    <h2>Against the library</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
+        <tbody>
+          <tr><td>Outbox and log-based CDC both remove the dual write by deriving publication from the committed log</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>Outbox fits intent-bearing domain events you own; row-level CDC fits state replication from writers you can't change</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>Both deliver at-least-once with per-shard ordering, so consumers need idempotency tokens</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>Log retention bounds CDC recovery (1–2 days in Wormhole's deployment) and forces a separate snapshot path</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>Source-only recovery can't guarantee exactly-once across a crash</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The library had no notes here, so everything is New. These findings are its first baseline for event publishing.</p>
+  </section>
+
+  <section>
+    <h2>Open questions</h2>
+    <ul class="open">
+      <li>How much does coupling consumers to table schemas through CDC actually cost over time? No registry source measures it.</li>
+      <li>Have current Debezium snapshot modes removed the locking cost DBLog described in 2020?</li>
+      <li>What are typical outbox relay lag and outbox-table growth numbers? None of the sources give them.</li>
+      <li>Will the exactly-once impossibility result hold up under peer review?</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Sources</h2>
+    <ol class="sources">
+      <li id="s1"><span class="title">Arslan Ahmad. "Transactional Outbox Pattern: How to Solve the Dual-Write Problem."</span> <em>DesignGurus</em>, 2026. <a href="https://www.designgurus.io/blog/transactional-outbox-pattern">designgurus.io/blog/transactional-outbox-patt…</a> <span class="chip t2">T2</span></li>
+      <li id="s2"><span class="title">Yogeshwer Sharma et al. "Wormhole: Reliable Pub-Sub to Support Geo-replicated Internet Services."</span> <em>USENIX NSDI</em>, 2015. <a href="https://www.usenix.org/system/files/conference/nsdi15/nsdi15-paper-sharma.pdf">usenix.org/system/files/conference/nsdi15/nsd…</a> <span class="chip t1">T1</span></li>
+      <li id="s3"><span class="title">Andreas Andreakis, Ioannis Papapanagiotou. "DBLog: A Watermark Based Change-Data-Capture Framework."</span> <em>arXiv</em>, 2020. <a href="https://arxiv.org/abs/2010.12597">arxiv.org/abs/2010.12597</a> <span class="chip t3">T3</span> <span>· no published version found on arXiv; DBLP blocked the lookup</span></li>
+      <li id="s4"><span class="title">Martin Fowler. "Domain Event."</span> <em>martinfowler.com</em>, 2005. <a href="https://martinfowler.com/eaaDev/DomainEvent.html">martinfowler.com/eaaDev/DomainEvent.html</a> <span class="chip t2">T2</span></li>
+      <li id="s5"><span class="title">Martin Fowler. "What do you mean by 'Event-Driven'?"</span> <em>martinfowler.com</em>, 2017. <a href="https://martinfowler.com/articles/201701-event-driven.html">martinfowler.com/articles/201701-event-driven…</a> <span class="chip t2">T2</span></li>
+      <li id="s6"><span class="title">Ian Cartwright, Rob Horn, James Lewis. "Event Interception."</span> <em>Patterns of Legacy Displacement, martinfowler.com</em>, 2024. <a href="https://martinfowler.com/articles/patterns-legacy-displacement/event-interception.html">martinfowler.com/articles/patterns-legacy-dis…</a> <span class="chip t2">T2</span></li>
+      <li id="s7"><span class="title">Arslan Ahmad. "Change Data Capture 101: Keeping Systems in Sync in Real Time."</span> <em>DesignGurus</em>, 2026. <a href="https://www.designgurus.io/blog/change-data-capture">designgurus.io/blog/change-data-capture</a> <span class="chip t2">T2</span></li>
+      <li id="s8"><span class="title">Malcolm Featonby. "Making retries safe with idempotent APIs."</span> <em>Amazon Builders' Library</em>, n.d. <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">aws.amazon.com/builders-library/making-retrie…</a> <span class="chip t2">T2</span></li>
+      <li id="s9"><span class="title">Andreas Andreakis. "Machine-Checked Dual-Write Recovery from a Commit Log."</span> <em>arXiv</em>, 2026. <a href="https://arxiv.org/abs/2608.00501">arxiv.org/abs/2608.00501</a> <span class="chip t3">T3</span> <span>· abstract only</span></li>
+    </ol>
+  </section>
+
+  <footer class="filed">
+    <span>Filed to the library</span>
+    <span>New · <code>domains/software/architecture/transactional-outbox.md</code></span><span>New · <code>domains/software/data/log-based-change-data-capture.md</code></span><span>New · <code>domains/software/reliability/at-least-once-event-delivery.md</code></span>
+  </footer>
+</main>
