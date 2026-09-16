@@ -171,19 +171,7 @@
 
   <section>
     <h2>Against the library</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
-        <tbody>
-          <tr><td>Outbox and log-based CDC both remove the dual write by deriving publication from the committed log</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
-          <tr><td>Outbox fits intent-bearing domain events you own; row-level CDC fits state replication from writers you can't change</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
-          <tr><td>Both deliver at-least-once with per-shard ordering, so consumers need idempotency tokens</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
-          <tr><td>Log retention bounds CDC recovery (1–2 days in Wormhole's deployment) and forces a separate snapshot path</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
-          <tr><td>Source-only recovery can't guarantee exactly-once across a crash</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p>The library had no notes here, so everything is New. These findings are its first baseline for event publishing.</p>
+    <p class="empty">The library had nothing on event publishing, so all of this is new. It now lives in three notes: <code>transactional-outbox</code>, <code>log-based-change-data-capture</code>, and <code>at-least-once-event-delivery</code>.</p>
   </section>
 
   <section>

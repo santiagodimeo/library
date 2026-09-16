@@ -28,6 +28,9 @@ under, and the one thing that would change it.}}
 
 ## Against the library
 
+{{Skip the table when every row would be New: one sentence saying the library
+had nothing here and which notes now hold the baseline.}}
+
 | Claim | Verdict | Library note |
 |---|---|---|
 | {{claim, one line}} | Conflicts | [[{{slug}}]] — {{what the note says}} |

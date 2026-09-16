@@ -10,7 +10,7 @@ sources:
   - Andreas Andreakis, "Machine-Checked Dual-Write Recovery from a Commit Log", arXiv 2026 — https://arxiv.org/abs/2608.00501 [T3, abstract only]
 updated: 2026-09-16
 from: investigations/2026-09-16-outbox-vs-cdc.md
-related: [[[log-based-change-data-capture]], [[at-least-once-event-delivery]]]
+related: [log-based-change-data-capture, at-least-once-event-delivery]
 ---
 
 # Transactional outbox

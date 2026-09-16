@@ -98,6 +98,8 @@
   .t2 { color: var(--t2); }
   .t3 { color: var(--t3); }
 
+  .flag { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+  section > p.empty { color: var(--muted); }
   ul.open { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
 
   .sources { margin: 0; padding-left: 2.2em; font-size: .8125rem; line-height: 1.55; display: grid; gap: 10px; color: var(--muted); }
@@ -160,6 +162,8 @@
       </table>
     </div>
     <p>{{What the contrast means.}}</p>
+    <!-- when every row would be New, replace the table and paragraph above with: -->
+    <p class="empty">{{The library had nothing here; these findings are now its baseline in …}}</p>
   </section>
 
   <section>
@@ -173,13 +177,23 @@
     <h2>Sources</h2>
     <ol class="sources">
       <!-- repeat: id="sN" matches the superscript href -->
-      <li id="s1"><span class="title">{{Author(s). "Title."}}</span> <em>{{Venue}}</em>, {{Year}}. <a href="{{URL}}">{{short URL}}</a> <span class="chip t1">T1</span></li>
+      <li id="s1"><span class="title">{{Author(s). "Title."}}</span> <em>{{Venue}}</em>, {{Year}}. <a href="{{URL}}">{{short URL}}</a> <span class="chip t1">T1</span> <span class="flag">{{· abstract only}}</span></li>
       <!-- /repeat -->
     </ol>
   </section>
 
+  <!-- optional: delete when empty -->
+  <section>
+    <h2>Proposed sources</h2>
+    <ul class="open">
+      <li>{{Source}} — <code>{{domain}}</code>, proposed {{T2}}: {{why it belongs}}</li>
+    </ul>
+  </section>
+  <!-- /optional -->
+
   <footer class="filed">
     <span>Filed to the library</span>
     <!-- repeat --><span>New · <code>{{domains/…/slug.md}}</code></span><!-- /repeat -->
+    <!-- repeat --><span>Updated · <code>{{domains/…/slug.md}}</code> — {{what changed}}</span><!-- /repeat -->
   </footer>
 </main>

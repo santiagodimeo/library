@@ -11,7 +11,7 @@ sources:
   - Ian Cartwright, Rob Horn, James Lewis, "Event Interception", martinfowler.com 2024 — https://martinfowler.com/articles/patterns-legacy-displacement/event-interception.html [T2]
 updated: 2026-09-16
 from: investigations/2026-09-16-outbox-vs-cdc.md
-related: [[[transactional-outbox]], [[at-least-once-event-delivery]]]
+related: [transactional-outbox, at-least-once-event-delivery]
 ---
 
 # Log-based change data capture

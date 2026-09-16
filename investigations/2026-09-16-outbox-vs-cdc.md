@@ -5,7 +5,7 @@ date: 2026-09-16
 domains: [software]
 confidence: Medium — the mechanisms rest on T1 and T2 production write-ups, but no registry source compares the two head to head, and the exactly-once result is T3
 read_time: 6 min
-artifact:
+artifact: https://claude.ai/artifact/CqDrfZ4AjaWfRBbrk4xXbn
 ---
 
 # Outbox vs. CDC
@@ -58,15 +58,7 @@ An outbox avoids the snapshot question for events but not the recovery gap. Its 
 
 ## Against the library
 
-| Claim | Verdict | Library note |
-|---|---|---|
-| Outbox and log-based CDC both remove the dual write by deriving publication from the committed log | New | — |
-| Outbox fits intent-bearing domain events you own; row-level CDC fits state replication from writers you can't change | New | — |
-| Both deliver at-least-once with per-shard ordering, so consumers need idempotency tokens | New | — |
-| Log retention bounds CDC recovery (1–2 days in Wormhole's deployment) and forces a separate snapshot path | New | — |
-| Source-only recovery can't guarantee exactly-once across a crash | New | — |
-
-The library had no notes here, so everything is New. These findings are its first baseline for event publishing.
+The library had nothing on event publishing, so all of this is new. It now lives in three notes: `transactional-outbox`, `log-based-change-data-capture`, and `at-least-once-event-delivery`.
 
 ## Open questions
 

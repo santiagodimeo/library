@@ -8,14 +8,15 @@ sources:
   - {{Author, "Title", Venue Year — URL}} [T1]
 updated: {{YYYY-MM-DD}}
 from: {{investigations/YYYY-MM-DD-slug.md, or "add"}}
-related: [{{[[other-slug]]}}]
+related: [{{other-slug}}, {{another-slug}}]
 ---
 
 # {{Concept name}}
 
 {{What it is and the mechanism, in two or three short paragraphs. The claim
 first, then how it works, then the conditions it depends on. Every factual
-sentence cites a source from the frontmatter by author-year.}}
+sentence cites a frontmatter source as (Author Year). Link related notes
+in the body with [[slug]].}}
 
 ## Tradeoffs
 

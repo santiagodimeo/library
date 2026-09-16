@@ -71,6 +71,13 @@ For finding and checking sources. Never cited themselves.
 | Designing Data-Intensive Applications | dataintensive.net | T2 | Kleppmann; follow its references to T1 |
 | Brendan Gregg | brendangregg.com | T2 | Performance methodology, observability |
 | The Morning Paper archive | blog.acolyer.org | T2 | Paper summaries — cite the paper, not the summary |
+| Martin Kleppmann | martin.kleppmann.com | T2 | Author copies of his papers and essays |
+| Microservices.io | microservices.io | T2 | Chris Richardson — canonical microservice pattern write-ups |
+| AWS Prescriptive Guidance | docs.aws.amazon.com/prescriptive-guidance | T2 | Named cloud design patterns |
+| PostgreSQL docs | postgresql.org/docs | T2 | Primary for Postgres behavior — WAL, replication slots, isolation |
+| MySQL docs | dev.mysql.com/doc | T2 | Primary for MySQL behavior — binlog, InnoDB |
+| Apache Kafka docs | kafka.apache.org | T2 | Primary for Kafka semantics — idempotent producers, transactions |
+| Debezium docs | debezium.io | T2 | Primary for Debezium behavior — snapshots, outbox router |
 
 ## Hardware
 
