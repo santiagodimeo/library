@@ -1,0 +1,185 @@
+<title>{{Short name}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  /* Library investigation — shared design system. Fill, don't redesign. */
+  :root {
+    --ground: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1a1e1c;
+    --muted: #5b6560;
+    --rule: #d9ded9;
+    --accent: #1e5a73;
+    --conflicts: #a5372a;
+    --extends: #8a5a00;
+    --confirms: #2e6a4a;
+    --new: #55606a;
+    --t1: #2e6a4a;
+    --t2: #2f5b8f;
+    --t3: #8a5a00;
+    --serif: "Literata", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+      --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+      --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+    --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+    --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 1.0625rem/1.68 var(--serif);
+    font-optical-sizing: auto;
+    padding: 0 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 42rem; margin: 0 auto; padding-block: 56px 88px; display: grid; gap: 40px; }
+  a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .eyebrow, .meta, .label, th, .chip, sup, .sources, .filed {
+    font-family: var(--mono);
+  }
+  header { display: grid; gap: 14px; }
+  .eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    font: 600 clamp(2rem, 5vw, 2.6rem)/1.12 var(--sans);
+    letter-spacing: -.015em; margin: 0; text-wrap: balance;
+  }
+  .question { font-style: italic; color: var(--muted); margin: 0; font-size: 1.125rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .8125rem; color: var(--muted); margin: 4px 0 0; padding: 0; list-style: none; }
+  .meta strong { color: var(--ink); font-weight: 500; }
+
+  .bottom-line {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 24px;
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+  .bottom-line p { margin: 0; }
+  .label { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+
+  section { display: grid; gap: 14px; }
+  h2 { font: 600 1.3rem/1.3 var(--sans); margin: 0; text-wrap: balance; letter-spacing: -.005em; }
+  section p { margin: 0; }
+  sup { font-size: .68em; line-height: 0; }
+  sup a { text-decoration: none; padding: 0 1px; }
+  blockquote { margin: 0; padding-left: 16px; border-left: 2px solid var(--rule); color: var(--muted); }
+
+  .table-wrap { overflow-x: auto; border-top: 1px solid var(--ink); }
+  table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.45; }
+  th { text-align: left; font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); }
+  td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td:first-child { min-width: 14rem; }
+  td:last-child { color: var(--muted); min-width: 10rem; }
+
+  .chip {
+    display: inline-block; font-size: .7rem; font-weight: 500; letter-spacing: .04em;
+    padding: 2px 7px; border-radius: 3px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .v-conflicts { color: var(--conflicts); }
+  .v-extends { color: var(--extends); }
+  .v-confirms { color: var(--confirms); }
+  .v-new { color: var(--new); }
+  .t1 { color: var(--t1); }
+  .t2 { color: var(--t2); }
+  .t3 { color: var(--t3); }
+
+  ul.open { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+  .sources { margin: 0; padding-left: 2.2em; font-size: .8125rem; line-height: 1.55; display: grid; gap: 10px; color: var(--muted); }
+  .sources li::marker { color: var(--muted); }
+  .sources .title { color: var(--ink); }
+  .sources a { word-break: break-word; }
+  .sources li:target { color: var(--ink); }
+
+  footer.filed { border-top: 1px solid var(--rule); padding-top: 16px; font-size: .75rem; color: var(--muted); display: grid; gap: 4px; }
+  footer.filed code { font-family: inherit; color: var(--ink); }
+
+  @media (max-width: 480px) {
+    main { padding-block: 32px 64px; gap: 32px; }
+    body { font-size: 1rem; }
+    .bottom-line { padding: 18px; font-size: 1.0625rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">Investigation · {{primary domain}}{{ · secondary domain}}</span>
+    <h1>{{Title}}</h1>
+    <p class="question">{{The one-sentence question}}</p>
+    <ul class="meta">
+      <li>{{16 Sep 2026}}</li>
+      <li>{{7}} min read</li>
+      <li>Confidence <strong>{{High}}</strong> — {{why}}</li>
+      <!-- repo mode only --><li>Repo <strong>{{name}}</strong></li>
+    </ul>
+  </header>
+
+  <div class="bottom-line">
+    <span class="label">Bottom line</span>
+    <p>{{Two or three sentences.}}</p>
+  </div>
+
+  <!-- repeat: one section per finding. Heading is the claim. -->
+  <section>
+    <h2>{{Finding stated as a claim}}</h2>
+    <p>{{Paragraph with a citation.}}<sup><a href="#s1">1</a></sup></p>
+  </section>
+  <!-- /repeat -->
+
+  <section>
+    <h2>Against the library</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
+        <tbody>
+          <!-- repeat: Conflicts first, then Extends, Confirms, New -->
+          <tr><td>{{claim}}</td><td><span class="chip v-conflicts">Conflicts</span></td><td>{{slug}} — {{what it says}}</td></tr>
+          <tr><td>{{claim}}</td><td><span class="chip v-extends">Extends</span></td><td>{{slug}}</td></tr>
+          <tr><td>{{claim}}</td><td><span class="chip v-confirms">Confirms</span></td><td>{{slug}}</td></tr>
+          <tr><td>{{claim}}</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <!-- /repeat -->
+        </tbody>
+      </table>
+    </div>
+    <p>{{What the contrast means.}}</p>
+  </section>
+
+  <section>
+    <h2>Open questions</h2>
+    <ul class="open">
+      <li>{{question}}</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Sources</h2>
+    <ol class="sources">
+      <!-- repeat: id="sN" matches the superscript href -->
+      <li id="s1"><span class="title">{{Author(s). "Title."}}</span> <em>{{Venue}}</em>, {{Year}}. <a href="{{URL}}">{{short URL}}</a> <span class="chip t1">T1</span></li>
+      <!-- /repeat -->
+    </ol>
+  </section>
+
+  <footer class="filed">
+    <span>Filed to the library</span>
+    <!-- repeat --><span>New · <code>{{domains/…/slug.md}}</code></span><!-- /repeat -->
+  </footer>
+</main>
