@@ -58,11 +58,11 @@ For finding and checking sources. Never cited themselves.
 | CIDR | cidrdb.org | T1 | Database systems vision papers |
 | IETF / RFC Editor | rfc-editor.org, datatracker.ietf.org | T1 | Protocol behavior — the spec, not a blog about it |
 | W3C | w3.org | T1 | Web standards |
-| NIST | nist.gov | T1 | Crypto, security controls, SP 800 series |
-| OWASP | owasp.org | T2 | Application security practice |
+| NIST | nist.gov, nvlpubs.nist.gov | T1 | Crypto, security controls, SP 800 series — 800-92 logs, 800-122 PII |
+| OWASP | owasp.org, cheatsheetseries.owasp.org | T2 | Application security practice — Logging Cheat Sheet |
 | Martin Fowler | martinfowler.com | T2 | Architecture patterns, refactoring, evolutionary design, bliki |
 | DesignGurus | designgurus.io | T2 | System design patterns and interview-shaped tradeoffs. Corroborate numbers with T1. |
-| AWS Builders' Library | aws.amazon.com/builders-library | T2 | Operating distributed systems at scale |
+| AWS Builders' Library | aws.amazon.com/builders-library, builder.aws.com, d1.awsstatic.com/builderslibrary | T2 | Operating distributed systems at scale. The original URLs redirect to builder.aws.com, which renders empty to fetchers — read the PDF copies on d1.awsstatic.com |
 | Google SRE books | sre.google | T2 | Reliability, SLOs, incident practice |
 | Jepsen | jepsen.io | T2 | What a database actually guarantees under partition |
 | All Things Distributed | allthingsdistributed.com | T2 | Werner Vogels — primary source on Dynamo-lineage decisions |
@@ -78,6 +78,47 @@ For finding and checking sources. Never cited themselves.
 | MySQL docs | dev.mysql.com/doc | T2 | Primary for MySQL behavior — binlog, InnoDB |
 | Apache Kafka docs | kafka.apache.org | T2 | Primary for Kafka semantics — idempotent producers, transactions |
 | Debezium docs | debezium.io | T2 | Primary for Debezium behavior — snapshots, outbox router |
+| AWS service docs | docs.aws.amazon.com | T2 | Primary for AWS behavior — quotas, defaults, scaling semantics, RDS Proxy pinning |
+| AWS pricing | aws.amazon.com/*/pricing | T2 | List prices. Path-scoped; always cite Region and fetch date, prices move |
+| AWS What's New | aws.amazon.com/about-aws/whats-new | T2 | When a capability shipped |
+| AWS service blogs | aws.amazon.com/blogs | T2 | Feature internals by the service team; part-promotional, corroborate with docs |
+| Azure Architecture Center | learn.microsoft.com/en-us/azure/architecture | T2 | Named cloud design patterns — async request-reply, claim check, valet key |
+| Google AIPs | google.aip.dev | T2 | API design standards — long-running operations, pagination, errors |
+| Python docs | docs.python.org | T2 | Primary for CPython, asyncio, and GIL behavior |
+| asyncpg docs | magicstack.github.io/asyncpg | T2 | Primary for asyncpg — statement cache, pool reset |
+| Slack developer docs | docs.slack.dev, api.slack.com | T2 | Slack platform limits and behavior |
+| Brandur Leach | brandur.org | T2 | Postgres operational behavior with his own measurements — queues, MVCC, idempotency keys |
+
+## AI systems
+
+Model-provider docs are primary for how that API behaves — limits, pricing,
+caching — and change often, so cite the fetch date. They say nothing about
+model quality; that needs an eval or a refereed benchmark.
+
+| Source | Domain | Tier | Reach for it when |
+|---|---|---|---|
+| Claude Platform docs | platform.claude.com/docs | T2 | Claude API rate limits, spend caps, batches, prompt caching, service tiers |
+| PyTorch docs | docs.pytorch.org, github.com/pytorch/pytorch | T2 | CPU threading, quantization, loading. Hosted pages can render empty — read the `docs/source` files in the repo |
+| Hugging Face docs | huggingface.co/docs | T2 | transformers pipelines, Optimum, safetensors |
+| spaCy docs | spacy.io | T2 | Pipeline batching and multiprocessing |
+| ONNX Runtime docs | onnxruntime.ai/docs | T2 | CPU quantization and thread management |
+| Presidio docs | presidio.dataprivacystack.org | T2 | PII analyzer batching. Moved from microsoft.github.io/presidio |
+| MLSys proceedings | proceedings.mlsys.org | T1 | ML systems papers |
+| PMLR | proceedings.mlr.press | T1 | ICML, AISTATS papers |
+| OpenReview | openreview.net | T1 accepted / T3 otherwise | ICLR, NeurIPS papers — check the decision; rejected and withdrawn submissions live here too |
+| ACL Anthology | aclanthology.org | T1 | NLP papers — flag workshop papers |
+| USENIX OSDI / SOSP via ACM | usenix.org, dl.acm.org | T1 | LLM serving systems — Orca, vLLM |
+
+## Law and compliance
+
+| Source | Domain | Tier | Reach for it when |
+|---|---|---|---|
+| EUR-Lex | eur-lex.europa.eu | T1 | EU law text — GDPR, AI Act. Cite article and recital |
+| AICPA & CIMA | aicpa-cima.com | T1 | SOC 2 Trust Services Criteria. Download-walled; a mirror copy counts only if its edition is named |
+| NIST | nvlpubs.nist.gov | T1 | Federal guidance on logs, PII, and AI risk (AI RMF) |
+
+Legal and compliance text says what's required, not what's sufficient. An
+investigation quotes it and says so; it doesn't give legal advice.
 
 ## Hardware
 
