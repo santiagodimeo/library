@@ -4,115 +4,154 @@ question: What has to change in the analysis pipeline before a throughput test p
 date: 2026-09-17
 domains: [software]
 confidence: High — four T1/T2 sources read directly, and the library already held the baseline for every claim
-read_time: 7 min
-layout: software-S2
+read_time: 6 min
+layout: software-S1
 repo: euphony
 artifact: https://claude.ai/artifact/RmUwzq3vCTpRgGhvY4MzHN
 ---
 
 # Five epics before a number
 
-A throughput test measures whatever the harness lets it measure. Run one against the pipeline as it stands and the number will be a closed-loop average of a system that also serves open traffic, taken while one tenant can starve the rest and a timed-out job runs twice. The five epics below are ordered by what makes the measurement honest first and what makes it larger second: the harness, fair scheduling, lease-and-retry correctness, elasticity on the right metric, and the write path. Only the fourth is about adding capacity. What would change this order is a measured service-time distribution, which we do not have yet.
+We want to know how many conversations our analysis pipeline can process per hour. Nobody has ever measured it. The tempting move is to point a load generator at it and read the result, but the pipeline has four habits that would make that number wrong — and fixing them is most of the work. So the proposal is one epic in six parts: build an honest measurement first, then fix what the measurement will expose. What would change the plan is a measured service time per job, which is exactly what the first part produces.
 
-17 Sep 2026 · 7 min · confidence **High**, four T1/T2 sources read directly · software · repo **euphony**
+17 Sep 2026 · 6 min · confidence **High**, four sources read directly · software · repo **euphony**
+
+## TL;DR:
+
+- A load test measures whatever the harness allows. Ours would currently measure a system nobody actually runs, so the harness is the first piece of work, not the last.
+- Customers arrive whenever they like; a backfill arrives as fast as workers can pull it. These two patterns differ by up to **10× in response time** at the same load, so we test both.
+- Taking turns between customers is not fairness. Without a cap on how much of the system one customer can hold, a big backfill still blocks everyone.
+- When we give up waiting on a slow step, it keeps running. A retry then does the same work twice. Under load this makes the system slower the busier it gets.
+- We planned to add a database connection pooler. Vendor docs say it probably does nothing for us until we change one setting — a ten-minute check before spending anything.
+
+## Why this question is live:
+
+The first client is expected to send millions of conversations. We cannot currently say whether that takes a week or six months, what it costs, or whether other customers notice while it runs.
+
+The obvious answer — run a load test, read the number — fails for a specific reason. What the test reports depends on how work arrives, who else is waiting, and what happens when something is slow. All three are unsettled today, so the number would measure something real and still be useless as a promise to a customer.
 
 ## What the evidence says:
 
-### A closed-loop test describes a system nobody runs
+### A test that only mimics a backfill hides what customers feel
 
-Workload generators are either closed, where a new request arrives only after the last one completes, or open, where arrivals are independent of completions [3]. The distinction is not academic. For a fixed load, "the mean response time for an open system model can exceed that for a closed system model by an order of magnitude or more", and the gap persists even at a multiprogramming level of 1000 [3]. Service-time variability "has a huge impact on response times in open systems" and much less in closed ones [3].
+Load generators come in two shapes. In a **closed** one, a fixed set of workers each start their next job only when the last finishes — that is a backfill. In an **open** one, work arrives on its own schedule regardless of whether we finished the last piece — that is a customer uploading a file.<sup>3</sup>
 
-Both shapes exist in our pipeline. A backfill is closed: workers pull the next job when the last finishes. Upload and interactive analysis are open: they arrive when a customer sends them. A harness that only drives a backfill will understate the tail that interactive users see, and a mock returning a constant delay removes the variability that drives the open-system result [3].
+Treating one as the other is not a rounding error. At the same load, average response time in an open system "can exceed that for a closed system model by an order of magnitude or more", and how much jobs vary in size matters enormously in the open case and little in the closed one.<sup>3</sup> Our pipeline is both at once, so the harness drives both shapes, and the stand-in for the slow model step returns varied delays rather than a constant.
 
-The same paper undercuts a tempting shortcut. Scheduling policy barely matters in a closed system but produces "more than a factor of ten improvement" in an open one under high load [3]. Any fairness work we do will look pointless in a closed-loop test and decisive in an open one.
+*This becomes S1, the harness.*
 
-### Fairness is a concurrency cap, not an ordering rule
+### Fairness is a cap, not a turn-taking rule
 
-Per-tenant ordering is the obvious fix for one customer's backfill blocking everyone, and it is not sufficient. AWS's fairness mechanism is "per-customer rate-based limits, with some flexibility for bursting", which serve as guardrails for unexpected spikes and buy time to provision behind the scenes [2]. A rate limit bounds how much of the system a tenant can hold; ordering only interleaves what they already queued.
+The natural fix for one customer's backfill blocking everyone is to serve customers in rotation. That helps, and it is not enough: rotation decides the order, not how much of the system one customer can occupy. The industry answer is a per-customer rate limit with room to burst, which acts as a guardrail and buys time to add capacity.<sup>2</sup>
 
-The cost of getting this wrong is measured in hours, not minutes. If a spike goes unthrottled for the 30 minutes it takes an operator to notice and mitigate, and the queued volume is 10× consumer capacity, "it would take 300 minutes for the system to work through the backlog and recover" [2]. Even short spikes become multi-hour outages [2].
+The cost of skipping it is measured in hours. If a burst goes unchecked for the 30 minutes it takes someone to notice and react, and the queued work is ten times what the system can process, "it would take 300 minutes for the system to work through the backlog and recover".<sup>2</sup>
 
-### A timed-out job that keeps running turns load into more load
+*This becomes S2, fair claiming and a separate lane for bulk work.*
 
-When processing time crosses the visibility timeout, the message is redelivered while the first attempt is still running, which "causes an already overloaded service to essentially fork-bomb itself" [2]. The recommended fix is heartbeating long-running work, not a longer deadline [2].
+### A step we stopped waiting for is still running
 
-Our shape is the same with different names. The analysis service abandons a cascade call after its timeout, but abandoning an HTTP request is not cancellation: the callee keeps working unless it checks for a disconnect. The retry then re-runs the whole conversation while the first attempt still holds its resources. Dead-letter volume is worth alarming on, but it "would arrive too late for us to rely on it exclusively to detect problems" [2], so the lease and the retry budget have to carry the load.
+Our analysis service gives each conversation 60 seconds, then gives up and retries. Giving up on a network call does not stop the work on the other side: it keeps going until it finishes. The retry starts the same conversation again while the first attempt still holds its resources.
 
-### Scaling on queue depth is scaling on the wrong metric
+When processing time crosses the point where work is handed out again, it "causes an already overloaded service to essentially fork-bomb itself".<sup>2</sup> The fix is not a longer deadline, which only moves the line, but a signal from the worker that it is still alive plus a retry that waits longer each time.
 
-Target tracking assumes the metric falls as capacity rises. Queue depth does not: "the number of messages in the queue might not change proportionally to the size of the Auto Scaling group" [1]. The documented metric is backlog per instance — queue depth divided by running capacity — with the target set to acceptable latency divided by per-message processing time. AWS's worked example: 10 seconds of acceptable latency ÷ 0.1 seconds per message = a target of 100, against a current backlog per instance of 1500 ÷ 10 = 150, which scales out by five [1].
+*This becomes S3, leases and backoff, followed by S4, which lets a worker take new work as soon as a slot frees instead of waiting for its whole batch.*
 
-Two consequences for us. Our deploy tool can only point a policy at a single published metric, so the ratio has to be computed and published deliberately, or we scale on CPU and accept the lag. And the target value is a function of per-job processing time, which is exactly the number the harness in the first epic exists to produce. Scaling policy is downstream of measurement, not parallel to it.
+### Adding servers on the wrong signal adds the wrong number of servers
 
-### The database is the next bottleneck, and a proxy might not move it
+Automatic scaling works by watching one number and assuming it falls as capacity rises. Pending queue length does not behave that way, and AWS names it as the wrong choice: "the number of messages in the queue might not change proportionally to the size of the Auto Scaling group".<sup>1</sup>
 
-More workers means more connections, and RDS Proxy is the standard answer. It only pays off while sessions carry no state. For PostgreSQL the proxy pins a connection on `SET`, on `PREPARE`/`DISCARD`/`DEALLOCATE`/`EXECUTE`, on temporary tables, sequences and cursors, on `LISTEN`, on library loads, on `nextval`/`setval`, on advisory locks, and on any statement whose text exceeds 16 KB [4]. Pinning means "each later transaction uses the same underlying database connection until the session ends" [4].
+The metric that does work is backlog per worker — queue length divided by how many workers are running — with the target set to the delay we can accept divided by how long one job takes. AWS's worked example: 10 seconds of acceptable delay ÷ 0.1 seconds per job = a target of 100.<sup>1</sup>
 
-The trap is in the pool, not the application code. AWS calls out connection-pooling libraries that use a discard query as a reset: with `DISCARD ALL` configured, "RDS Proxy pins your client connection on release" [4]. Our driver's default reset runs an advisory unlock and `RESET ALL`, both on the pinning list. Shrinking pools is free and reversible; a proxy bought before checking `DatabaseConnectionsCurrentlySessionPinned` may deliver nothing [4].
+Both halves of that formula come from measurement. That is the strongest argument for building the harness first: without it, the scaling configuration is a guess wearing a number.
 
-## Cons, and what to do about them:
+*This becomes S5, elasticity.*
 
-**Five epics is a lot of engineering to justify with no measurement in hand.**
-True, and the order already answers it: the harness is first and runs against today's code. *Mitigation:* treat epics two through five as funded by what the first one shows, and cap the harness at a mock, two generators and a metrics pass.
+### The database is the next wall, and the planned fix may be a no-op
 
-**A mocked dependency measures our pipeline, not our product.**
-The number will describe queueing, scheduling and writes, with the slowest real component replaced by a stand-in. *Mitigation:* sample the mock's delays from a measured distribution rather than a constant [3], give it the real thing's refusal behavior, and label every result as pipeline-only.
+More workers means more database connections, and the standard remedy is a pooler that shares them. It only works while a connection carries no leftover state; for PostgreSQL the pooler stops sharing — "pins" — on ordinary operations like setting a parameter, preparing statements, or any statement over 16 KB.<sup>4</sup>
 
-**Scale-in protection, which keeps autoscaling from killing in-flight jobs, blocks rolling deployments while it is set.**
-A worker that protects itself for the length of a long job also holds up a deploy. *Mitigation:* set protection per job rather than per task lifetime, and bound it to the job's own timeout.
+The catch is our settings, not our code. AWS calls out pooling libraries that clear session state on release: with that configured, "RDS Proxy pins your client connection on release".<sup>4</sup> Our driver's default does exactly that, so the pooler we planned as a prerequisite may share nothing. Shrinking the pools is free, and one metric answers the question.
 
-**Retention by partition needs a schema change on tables that have no migration tool.**
-The tables that grow fastest are the ones hardest to restructure in place. *Mitigation:* partition forward from a cutover date and leave existing rows where they are; drop old partitions rather than deleting rows.
+*This becomes S6 plus a pool-sizing change inside S5.*
 
 ## How it actually works:
 
 ```
 open arrivals ──────┐                 ┌── interactive lane ──┐
 (uploads, API)      ├──► job queue ───┤                      ├──► workers ──► mock
-closed loop ────────┘   fair claim    └── bulk lane ─────────┘   lease +      (sampled
-(backfill pull)         per tenant                               heartbeat     delays)
+closed loop ────────┘   fair claim    └── bulk lane ─────────┘   lease +      (varied
+(backfill pull)         per customer                             heartbeat     delays)
                             │                                        │
-                            └── backlog ÷ running tasks ─────────────┴──► scaling policy
-                                (the published metric)
+                            └── backlog ÷ running workers ───────────┴──► scaling policy
 ```
 
-The harness drives both arrival shapes at once because they behave differently [3]. The lanes and the per-tenant claim decide who waits. The published ratio, not raw depth, is what a scaling policy can track [1].
+Both arrival shapes run at once because they behave differently. The lanes and the per-customer claim decide who waits. The published ratio, not raw queue length, is what a scaling policy can follow.
+
+## The epics this becomes:
+
+- **S1 — Harness.** A mock for the slow step, both generators, and a run report: completions per minute, how many finished first try, and latency percentiles. Changes no production code.
+- **S2 — Fair claiming and a bulk lane.** Oldest few per customer, a cap on how much one customer can hold, and backfills marked as bulk.
+- **S3 — Leases and backoff.** A worker signals it is alive; retries wait longer each time; a repeated request is recognized and skipped.
+- **S4 — Continuous claiming.** Take new work when a slot frees rather than waiting for the whole batch. Same files as S3, so the same owner does it next.
+- **S5 — Elasticity.** Publish backlog per worker, scale on it, and size the connection pools to fit the database.
+- **S6 — Queue durability.** Retention by dropping old partitions rather than deleting rows, a smaller index over pending work, and explicit cleanup settings.
+
+Two items sit outside the epic on purpose. Database statement logging currently captures conversation text into logs that never expire — a data-protection fix that must not wait on performance work. And the connection pooler stays unbuilt until the pinning check says it would help.
+
+## What you get from believing this:
+
+- **A number you can put in front of a customer.** This is the one that matters: the others are how you get it honestly.
+- **A backfill that no longer freezes everyone else.** Fairness work is invisible in a closed-loop test and decisive in real traffic.
+- **A cheap test loop.** With the model mocked, a full run costs a few hours of compute rather than a large model bill.
+
+Anyone running a handful of conversations a day gains nothing here. The value arrives with volume.
 
 ## What this settles, and what it doesn't:
 
 ### Settled
 
-- **Two generators, not one.** Open and closed arrivals differ in mean response time by an order of magnitude at the same load [3].
-- **Backlog per task is the scaling metric.** Raw depth doesn't move inversely with capacity, and the target is acceptable latency ÷ per-job time [1].
-- **A lease beats a longer timeout.** Redelivery during a running attempt is the documented way an overloaded queue system multiplies its own load [2].
-- **Pinning can erase a proxy's benefit**, and a pool reset that discards session state is a documented cause [4].
+- **Two generators, not one.** Open and closed arrivals differ in mean response time by an order of magnitude at the same load.<sup>3</sup>
+- **Backlog per worker is the scaling signal.** Queue length does not fall proportionally with capacity.<sup>1</sup>
+- **A liveness signal beats a longer timeout.** Re-handing out work that is still running is the documented way an overloaded queue multiplies its own load.<sup>2</sup>
+- **A pooler can share nothing.** A session-clearing pool reset is a documented cause of pinning.<sup>4</sup>
 
 ### Not settled
 
-- **Our per-job service time and its variability.** Every target value above is a function of it; no source can supply ours.
-- **Whether per-tenant ordering plus a concurrency cap is enough at our volumes.** Follows from [2] and the library note; no source measures this shape.
-- **Whether our driver actually pins.** The two doc pages make it likely, not certain; the metric settles it in one run [4].
+- **Our own service time per job and how much it varies.** Every target above depends on it; no source can supply ours.
+- **Whether rotation plus a cap is enough at our volumes.** This follows from [2] and the library note; no source measures our shape.
+- **Whether our driver actually pins connections.** The docs make it likely, not certain; one metric settles it.<sup>4</sup>
+
+## Cons, and what to do about them:
+
+**Six streams is a lot of work to justify with no measurement in hand.**
+Fair, and the order answers it: S1 runs against today's code and produces the number. *Mitigation:* fund S2 through S6 on what S1 shows, and keep S1 to a mock, two generators and a metrics pass.
+
+**A mocked model measures our plumbing, not our product.**
+The result describes queueing, scheduling and database writes, with the slowest real component replaced. *Mitigation:* draw the mock's delays from a measured distribution,<sup>3</sup> give it the real component's refusal behaviour, and label every result as plumbing-only.
+
+**Protecting a busy worker from shutdown also blocks deployments.**
+A worker that refuses to stop mid-job will hold up a rolling deploy. *Mitigation:* protect per job, not for the worker's lifetime, and bound it by the job's own timeout.
 
 ## Against the library:
 
 | Claim | Verdict | Library note |
 |---|---|---|
-| Per-tenant ordering makes the queue fair | Conflicts | `multi-tenant-queue-fairness` — caps, rate limits and per-tenant backlog, not ordering alone |
-| Raising the dispatch timeout past the callee's worst case fixes double-running | Conflicts | `queue-leases-and-retries` — a bigger timeout moves the threshold; leases and heartbeats remove it |
-| Scale workers on pending queue depth | Conflicts | `autoscaling-queue-workers` — backlog per task, target from latency ÷ processing time |
-| RDS Proxy is the answer to connection pressure | Conflicts | `rds-proxy-connection-pinning` — a default asyncpg reset likely pins every connection |
-| Mock the model with fixed delays | Extends | `load-testing-open-vs-closed` — variability drives open-system response time |
-| Delete old jobs on a schedule | Extends | `postgres-job-queues` — DELETE creates the vacuum load; drop partitions instead |
-| Statement logging captures conversation text | Confirms | `sensitive-data-in-logs` — bind values logged in full by default |
+| Serving customers in rotation makes the queue fair | Conflicts | `multi-tenant-queue-fairness` — caps and rate limits, not ordering alone |
+| A longer timeout fixes double-running | Conflicts | `queue-leases-and-retries` — a bigger timeout moves the threshold; leases remove it |
+| Scale workers on pending queue length | Conflicts | `autoscaling-queue-workers` — backlog per worker, target from latency ÷ job time |
+| A connection pooler answers connection pressure | Conflicts | `rds-proxy-connection-pinning` — a default asyncpg reset likely pins every connection |
+| Mock the slow step with a fixed delay | Extends | `load-testing-open-vs-closed` — variability drives open-system response time |
+| Delete old jobs on a schedule | Extends | `postgres-job-queues` — DELETE creates the cleanup load; drop partitions instead |
+| Statement logging captures conversation text | Confirms | `sensitive-data-in-logs` — bound values logged in full by default |
 
-Four of our planned moves were wrong in the same direction: each treated a scheduling or capacity problem as a knob when the source calls for a mechanism. The belief that moved most is about the proxy — it was on the roadmap as a dependency for scaling out, and it may be a no-op until the pool reset changes.
+Four planned moves were wrong in the same direction: each treated a scheduling or capacity problem as a knob to turn when the evidence calls for a mechanism. The belief that moved most is the pooler, which was on the roadmap as a prerequisite and may be a no-op.
 
 ## Open questions:
 
-- What is the service-time distribution per job, and how heavy is its tail? Every target value depends on it.
-- Is the client's real traffic open, closed, or partly open? The paper's convergence depends on requests per session [3].
-- Does our claim transaction stay short enough under load to keep vacuum ahead of the queue table?
-- What per-tenant concurrency cap is low enough to protect others and high enough to finish a backfill in the promised window?
+- How long does one job actually take, and how much does it vary? Every target depends on it.
+- Is the client's real traffic open, closed, or a mix? It decides which result is the headline.
+- Can the database keep up with cleanup while the queue is under sustained load?
+- What per-customer cap is low enough to protect others and high enough to finish a backfill on time?
 
 ## Sources:
 
@@ -125,4 +164,4 @@ Four of our planned moves were wrong in the same direction: each treated a sched
 
 - Updated: [[queue-leases-and-retries]] — an abandoned HTTP call is not cancellation; the callee keeps running
 - Updated: [[autoscaling-queue-workers]] — what to do when the platform has no metric math for backlog per task
-- Layout: software-S2
+- Layout: software-S1 (switched from software-S2 at the reader's request — the Proposal layout carries the TL;DR and the epic list)
