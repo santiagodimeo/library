@@ -10,6 +10,7 @@ Usage:
   /research repo [subsystem]             contrast this repo's architecture with the library
   /research add <url | doi | arXiv id>   file one source into the library, no investigation
   /research ask <question>               answer from the library only, no web
+  /research layouts                      which artifact layout is winning
 
 ## Where the library is
 
@@ -93,15 +94,16 @@ Rules:
    - **Extends** — adds a condition, a number, or a failure mode to a note.
    - **Confirms** — agrees, with better or newer evidence.
    - **New** — nothing in the library covers it.
-5. **Write the investigation** from `templates/investigation.md` to
-   `investigations/YYYY-MM-DD-<slug>.md`.
-6. **File what's durable** (see Filing). Record it in the "Filed" section.
-7. **Offer the artifact** (see Artifact).
-8. **Chat output** — three lines, nothing else:
+5. **Pick the layout** (see Layout). Run the picker; don't choose by taste.
+6. **Write the investigation** from `templates/investigation.md` to
+   `investigations/YYYY-MM-DD-<slug>.md`, in the layout's block order.
+7. **File what's durable** (see Filing). Record it in the "Filed" section.
+8. **Offer the artifact** (see Artifact), then append the `LAYOUTS.md` row.
+9. **Chat output** — three lines, nothing else:
    ```
    <the bottom line, condensed to one sentence>
    Sharpest contrast: <top Conflicts, else top Extends, else "nothing in the library yet — N notes filed">
-   <investigation path> · <artifact link, or "not published">
+   <investigation path> · <artifact link, or "not published"> · <layout>
    ```
 
 ## Mode: repo
@@ -163,22 +165,159 @@ The reader opens this on a Sunday afternoon or between meetings. It should read
 in 5–8 minutes and leave them knowing what's true, what's contested, and what
 it means for what they already believe.
 
-- 900–1,500 words of prose: the bottom line and the finding sections. The
-  frontmatter, contrast table, open questions, sources, and filed list don't
-  count. Hard cap 1,800. Count before finishing.
-- Lead with the bottom line — two or three sentences. No "Introduction".
-- Short paragraphs, 2–4 sentences. Prose over bullets, except the contrast
-  table and sources.
-- Three to five finding sections. Headings say the finding, not the topic:
-  "Outbox wins when the event is a contract, not a row", not "Analysis".
-- Every sourced claim carries `[n]`. Numbers keep their units and conditions.
-- Say how sure you are and why, once, in the header: High / Medium / Low.
+**Shape**
+
+- 900–1,500 words of prose: everything except frontmatter, tables, sources and
+  the filed list. Hard cap 1,800. Count before finishing.
+- Lead with the bottom line — three or four sentences, no heading above it, no
+  "Introduction". The first sentence is the answer.
+- Short paragraphs, 2–4 sentences. Prose over bullets, except where the layout
+  calls for a list block.
+- Section headings (`##`) are topical and end in a colon: `What the evidence
+  says:`, `Cons, and what to do about them:`. Findings are `###` inside the
+  body block, stated as claims, no colon: `Outbox wins when the event is a
+  contract, not a row`.
+- Three to five findings. Say how sure you are and why, once, in the meta line.
+
+**Voice**
+
+One engineer explaining something to another who is just as capable and hasn't
+read the paper. Plain American English, concrete nouns, active verbs.
+
+- Name the thing. "A branch named `--upload-pack=/tmp/x` is still read by git
+  as a flag" beats "special characters may be interpreted unexpectedly".
+- Every claim carries its cost. A benefit sentence that doesn't say what it
+  costs isn't finished.
+- Numbers keep units and conditions inline: "roughly 70% of severe
+  vulnerabilities", "10% to 70% depending only on presentation".
+- Put the concession in the same breath as the claim, not in a later section:
+  "Rust makes that rule enforceable at compile time, but you have to write the
+  rule."
+- Rank inside a list. Say which item matters — "This is the one that changes
+  how you work; everything below is secondary."
+- Say who this is *not* for, once, in a muted line. It's the fastest way to
+  show you know the boundary.
 - Define a term only if a strong generalist engineer wouldn't know it.
-- No filler: "leverage", "utilize", "it's worth noting", "importantly",
-  "in today's landscape", "delve".
-- At most one diagram, only if it shows a mechanism prose can't.
-- When every contrast row would be New, skip the table: one sentence saying the
-  library had nothing here, and which notes now hold the baseline.
+- Every sourced claim carries `[n]`. Inference gets no `[n]` and says so in the
+  sentence.
+
+**Never**
+
+- Filler: "leverage", "utilize", "it's worth noting", "importantly", "in
+  today's landscape", "delve", "robust", "seamless".
+- A heading that names a topic instead of stating something — as an `###`
+  finding. (Block `##` headings are topical by design; that's the contract.)
+- Hedging stacked on hedging: "may potentially be able to".
+- More than one diagram, and none at all unless it shows a mechanism prose
+  can't.
+
+## Layout
+
+Every investigation gets a **layout**: which blocks appear and in what order.
+The design system never varies; the running order does. Thirty days of these,
+each stamped with its layout name, is the experiment — `/research layouts`
+reads the results back.
+
+**Blocks** — the whole vocabulary, same names in `templates/investigation.md`
+and `templates/investigation.html`:
+
+| Block | What it is |
+|---|---|
+| `lede` | Title, bottom line, meta line. Always first, never moves. |
+| `tldr` | 4–6 claim bullets. |
+| `context` | Why the question is live. |
+| `body` | The findings, `###` claims under one `##`. Always present. |
+| `mechanism` | The one tree or diagram. |
+| `numbers` | The quantities the decision turns on, as a table. |
+| `ledger` | Settled / Not settled, two lists. |
+| `contested` | The strongest case against, at full strength. |
+| `cons` | Objections, each with a mitigation. |
+| `applications` | Where else this applies. |
+| `gains` | What changes for the reader, plus who gains nothing. |
+| `contrast` | Against the library. Always present. |
+| `open` | Open questions. Always present. |
+| `sources` | Always present, always last before the rule. |
+| `proposed` | Proposed sources. Only when non-empty. |
+| `filed` | Footer, including the layout stamp. Always last. |
+
+`lede`, `body`, `contrast`, `open`, `sources` and `filed` are in every layout;
+`proposed` appears whenever it has content. The layouts below order everything
+between `lede` and `contrast`.
+
+**The fifteen layouts.** Three per domain, by the investigation's primary
+domain.
+
+*software* — S1 is the house order and the one to beat.
+
+- `software-S1` **Proposal** — tldr · context · body · mechanism · applications · gains · ledger · cons
+- `software-S2` **Argument** — body · cons · mechanism · ledger
+- `software-S3` **Field guide** — tldr · mechanism · body · applications · contested
+
+*hardware* — physical limits first; the numbers are the argument.
+
+- `hardware-H1` **Budget** — tldr · numbers · body · mechanism · ledger · cons
+- `hardware-H2` **Teardown** — context · mechanism · body · numbers · cons
+- `hardware-H3` **Spec sheet** — body · numbers · cons · applications
+
+*philosophy* — position, objection, reply.
+
+- `philosophy-P1` **Dialectic** — context · body · contested · ledger
+- `philosophy-P2` **Position** — tldr · body · cons · applications
+- `philosophy-P3` **Close reading** — body · mechanism · contested · gains
+
+*design* — show it before explaining it.
+
+- `design-D1` **Exhibit** — mechanism · body · applications · gains · cons
+- `design-D2` **Critique** — tldr · body · gains · contested
+- `design-D3` **Brief** — context · body · mechanism · cons · applications
+
+*biology* — evidence quality up front, mechanism after.
+
+- `biology-B1` **Evidence first** — tldr · numbers · body · ledger
+- `biology-B2` **Review** — context · body · numbers · contested · cons
+- `biology-B3` **Mechanism** — body · mechanism · numbers · ledger · applications
+
+**Picking one.** Not by taste, and not purely at random — pure random over
+twenty investigations skews badly enough to waste the month. Least-used wins,
+random tie-break:
+
+```sh
+# from the library root; substitute the domain's own three layout names
+for L in software-S1 software-S2 software-S3; do
+  printf '%s %s\n' "$(grep -c -- "| $L " investigations/LAYOUTS.md)" "$L"
+done | sort -n \
+  | awk -v seed=$RANDOM 'NR==1{min=$1} $1==min{a[++n]=$2}
+      END{srand(seed); print a[int(rand()*n)+1]}'
+```
+
+That prints the least-used layout for the domain, breaking ties at random. Run
+it — don't do the arithmetic in your head, and don't pick because a layout
+suits the material.
+
+Never pick because a layout suits the material. That's the bias the experiment
+exists to remove. The one exception: if a layout names a block the
+investigation genuinely can't fill — `mechanism` with no mechanism, `numbers`
+with no numbers — pick the next-least-used layout for that domain and note the
+skip in the ledger row.
+
+**Recording it.** Three places, every time:
+
+1. `layout: <name>` in the markdown frontmatter, and the last bullet of
+   `## Filed`.
+2. The footer line in the HTML: `Layout <b>software-S1</b> · 2026-09-17`.
+3. One row appended to `investigations/LAYOUTS.md`:
+   `| software-S1 | 2026-09-17 | <slug> | <artifact url or —> | |`
+   The last column is the user's verdict, left empty for them to fill.
+
+## Mode: layouts
+
+`/research layouts` — no web, no library reads beyond the ledger.
+
+Read `investigations/LAYOUTS.md` and print: uses per layout by domain, which
+layouts are under-represented, and any verdicts the user has written in. Then
+ask whether to retire a layout. Retiring one means editing the three-layout
+list for that domain in this file — the picker only ever knows what's written
+here.
 
 ## Artifact
 
@@ -195,23 +334,27 @@ To render and publish:
 1. `templates/investigation.html` is the library's design system and wins over
    any per-page design guidance. When publishing, load `artifact-design` for
    the page contract only (title, description, favicon rules) — don't
-   redesign.
+   redesign. The look is deliberately plain: one serif, one mono, black on
+   white, rules instead of boxes, no accent colors, no chips, emphasis by
+   weight only. Don't add a palette, a card, a badge, or a web font.
 2. Copy the template to `investigations/YYYY-MM-DD-<slug>.html`. It's a page
-   fragment, not a full document; the Artifact tool adds the skeleton. Fill it
-   from the markdown with the same words:
+   fragment, not a full document; the Artifact tool adds the skeleton. Keep the
+   blocks the layout names, in the layout's order, delete the rest, and fill
+   them from the markdown with the same words:
    | Markdown | HTML |
    |---|---|
    | `[n]` | `<sup><a href="#sn">n</a></sup>` |
    | `*(unreplicated)*`, `*text*` | `<em>…</em>` |
    | `[[slug]]` | the slug in `<code>` |
-   | Source line | one `<li id="sn">`, tier chip, `.flag` span for "abstract only" / lookup notes |
+   | Source line | one `<li id="sn">`, `<span class="tier">[T1]</span>`, `.flag` span for "abstract only" / lookup notes |
    | Contrast row | one `<tr>`; Conflicts, Extends, Confirms, New in that order |
-   Repeat the marked blocks, delete the ones with nothing to hold (repo line,
-   contrast table, proposed sources), and leave no `{{…}}`. Don't double
+   | Objection + mitigation | `<dt>` / `<dd>`, with `<i>Mitigation:</i>` |
+   | Settled / Not settled bullet | `<li>` in `<ul class="ledger">`, claim in `<b>` |
+   Leave no `{{…}}` and no block comment for a block you deleted. Don't double
    punctuation after a title that ends in `?` or `!`.
 3. `<title>` is the frontmatter `title`. The publish `description` is the
    one-sentence chat bottom line.
 4. Favicon by primary domain: software 🧩, hardware 🔩, philosophy 🦉,
    design 📐, biology 🧬.
-5. Publish, write the URL into the markdown frontmatter `artifact:` field, and
-   commit.
+5. Publish, write the URL into the markdown frontmatter `artifact:` field, fill
+   the artifact column of the `LAYOUTS.md` row, and commit.

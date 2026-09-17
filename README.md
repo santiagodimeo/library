@@ -29,13 +29,14 @@ contrast is the point: what moved relative to what you already believed.
 Conflicts land in the note's **Tensions** section instead of overwriting it,
 so a disagreement stays visible until you settle it.
 
-## Layout
+## Files
 
 ```
 SOURCES.md          the whitelist — tiers, domains, and what's never cited
 INDEX.md            every note, one line each
 domains/<d>/        README with the areas; notes at <area>/<slug>.md
 investigations/     YYYY-MM-DD-<slug>.md, plus .html when published
+                    LAYOUTS.md — which layout each one used, and your verdict
 templates/          note.md, investigation.md, investigation.html
 skill/SKILL.md      /research
 install.sh          links skill/ into every Claude config dir
@@ -53,9 +54,17 @@ source is adding a row.
 ## Reading
 
 Investigations are sized for a Sunday afternoon or a gap between meetings:
-900–1,500 words, 5–8 minutes, bottom line first, headings that state findings.
-Published artifacts share one design (`templates/investigation.html`) so they
-read as a series, not a pile.
+900–1,500 words, 5–8 minutes, bottom line first, findings stated as headings.
+Published artifacts share one design (`templates/investigation.html`) — black
+on white, one serif, one mono, rules instead of boxes — so they read as a
+series, not a pile.
+
+What varies is the **layout**: which blocks appear and in what order. Each
+domain has three, and the picker takes the least-used one so the month comes out
+balanced rather than lopsided. Every investigation is stamped with its layout
+in the frontmatter, the artifact footer, and `investigations/LAYOUTS.md`. Write
+a verdict in that file whenever one lands well or badly; `/research layouts`
+reads it back.
 
 ## Install
 

@@ -1,0 +1,292 @@
+<title>Five Epics Before a Number</title>
+<style>
+  /* Library investigation — shared design system. Fill, don't redesign.
+     Plain-text house style: one serif, one mono, no accent colors, no cards.
+     Emphasis comes from weight and rules, never from hue. */
+  :root {
+    --ground: #ffffff;
+    --ink: #000000;
+    --link: #0000ee;
+    --muted: #555555;
+    --rule: #000000;
+    --box: #f2f2f2;
+    --serif: "Times New Roman", Times, "Liberation Serif", serif;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0b0b0b;
+      --ink: #e9e9e9;
+      --link: #8ab4ff;
+      --muted: #9b9b9b;
+      --rule: #e9e9e9;
+      --box: #161616;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0b0b0b;
+    --ink: #e9e9e9;
+    --link: #8ab4ff;
+    --muted: #9b9b9b;
+    --rule: #e9e9e9;
+    --box: #161616;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    line-height: 1.34;
+    padding: 0 20px;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    max-width: 36rem;
+    margin: 0 auto;
+    padding-block: 40px 100px;
+  }
+
+  h1 {
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    margin: 0 0 .35em;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 2.1em 0 .45em;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 1.5em 0 .2em;
+  }
+
+  p { margin: 0 0 .85em; }
+
+  a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+  ul { margin: 0 0 .9em; padding-left: 1.3em; }
+  li { margin-bottom: .3em; }
+  li > ul { margin-top: .3em; margin-bottom: .4em; }
+
+  .lede { margin-bottom: 1.6em; }
+  .muted { color: var(--muted); }
+
+  .meta {
+    font-family: var(--mono);
+    font-size: .78rem;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0 0 1.8em;
+  }
+  .meta b { color: var(--ink); font-weight: 700; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .82em;
+  }
+
+  .tree {
+    font-family: var(--mono);
+    font-size: .78rem;
+    line-height: 1.5;
+    background: var(--box);
+    padding: 14px 16px;
+    margin: 0 0 1em;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tree b { font-weight: 700; }
+  .tree span { color: var(--muted); }
+
+  .fig {
+    margin: 1.1em 0 1.4em;
+    overflow-x: auto;
+  }
+  .fig svg { display: block; max-width: 100%; height: auto; }
+  .caption { font-size: .9rem; color: var(--muted); margin-top: .3em; }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 2.4em 0 0;
+  }
+
+  dl { margin: 0 0 1em; }
+  dt { font-weight: 700; margin-top: .7em; }
+  dd { margin: 0; }
+
+  .ledger { margin: 0 0 1em; padding-left: 1.3em; }
+  .ledger li { margin-bottom: .45em; }
+  .ledger b { font-weight: 700; }
+
+  sup { font-size: .68em; line-height: 0; }
+  sup a { text-decoration: none; padding: 0 1px; }
+
+  .table-wrap { overflow-x: auto; margin: 0 0 1em; }
+  table { width: 100%; border-collapse: collapse; font-size: .95rem; line-height: 1.3; }
+  th {
+    text-align: left; font-weight: 700; font-size: .8rem;
+    letter-spacing: .04em; text-transform: uppercase;
+    border-bottom: 1px solid var(--rule); padding: 0 14px .35em 0;
+  }
+  td { vertical-align: top; border-bottom: 1px solid var(--rule); padding: .5em 14px .5em 0; }
+  td:last-child, th:last-child { padding-right: 0; }
+  td.verdict { font-weight: 700; white-space: nowrap; }
+  td.note { color: var(--muted); }
+
+  ol.sources { margin: 0; padding-left: 1.6em; font-size: .92rem; line-height: 1.3; }
+  ol.sources li { margin-bottom: .5em; color: var(--muted); }
+  ol.sources .title { color: var(--ink); }
+  ol.sources li:target { color: var(--ink); }
+  ol.sources a { word-break: break-word; }
+  .tier { font-family: var(--mono); font-size: .72em; letter-spacing: .04em; color: var(--ink); }
+  .flag { font-family: var(--mono); font-size: .72em; color: var(--muted); }
+
+  footer {
+    font-family: var(--mono);
+    font-size: .72rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-top: 1.4em;
+  }
+  footer b { color: var(--ink); font-weight: 700; }
+
+  @media (max-width: 480px) {
+    body { font-size: 1.0625rem; }
+    h1 { font-size: 2.1rem; }
+    h2 { font-size: 1.4rem; }
+    main { padding-block: 28px 72px; }
+  }
+</style>
+
+
+<main>
+
+  <h1>Five epics before a number</h1>
+
+  <p class="lede">A throughput test measures whatever the harness lets it measure. Run one against the pipeline as it stands and the number will be a closed-loop average of a system that also serves open traffic, taken while one tenant can starve the rest and a timed-out job runs twice. The five epics below are ordered by what makes the measurement honest first and what makes it larger second: the harness, fair scheduling, lease-and-retry correctness, elasticity on the right metric, and the write path. Only the fourth is about adding capacity.</p>
+
+  <p class="meta">17 Sep 2026 · 7 min · confidence <b>High</b>, four T1/T2 sources read directly · software · repo <b>euphony</b></p>
+
+  <h2>What the evidence says:</h2>
+
+  <h3>A closed-loop test describes a system nobody runs</h3>
+  <p>Workload generators are either closed, where a new request arrives only after the last one completes, or open, where arrivals are independent of completions.<sup><a href="#s3">3</a></sup> The distinction is not academic. For a fixed load, “the mean response time for an open system model can exceed that for a closed system model by an order of magnitude or more”, and the gap persists even at a multiprogramming level of 1000.<sup><a href="#s3">3</a></sup> Service-time variability “has a huge impact on response times in open systems” and much less in closed ones.<sup><a href="#s3">3</a></sup></p>
+  <p>Both shapes exist in our pipeline. A backfill is closed: workers pull the next job when the last finishes. Upload and interactive analysis are open: they arrive when a customer sends them. A harness that only drives a backfill will understate the tail interactive users see, and a mock returning a constant delay removes the variability that drives the open-system result.<sup><a href="#s3">3</a></sup></p>
+  <p>The same paper undercuts a tempting shortcut. Scheduling policy barely matters in a closed system but produces “more than a factor of ten improvement” in an open one under high load.<sup><a href="#s3">3</a></sup> Any fairness work we do will look pointless in a closed-loop test and decisive in an open one.</p>
+
+  <h3>Fairness is a concurrency cap, not an ordering rule</h3>
+  <p>Per-tenant ordering is the obvious fix for one customer's backfill blocking everyone, and it is not sufficient. AWS's fairness mechanism is “per-customer rate-based limits, with some flexibility for bursting”, which serve as guardrails for unexpected spikes and buy time to provision behind the scenes.<sup><a href="#s2">2</a></sup> A rate limit bounds how much of the system a tenant can hold; ordering only interleaves what they already queued.</p>
+  <p>The cost of getting this wrong is measured in hours. If a spike goes unthrottled for the 30 minutes it takes an operator to notice and mitigate, and the queued volume is 10× consumer capacity, “it would take 300 minutes for the system to work through the backlog and recover”.<sup><a href="#s2">2</a></sup> Even short spikes become multi-hour outages.<sup><a href="#s2">2</a></sup></p>
+
+  <h3>A timed-out job that keeps running turns load into more load</h3>
+  <p>When processing time crosses the visibility timeout, the message is redelivered while the first attempt is still running, which “causes an already overloaded service to essentially fork-bomb itself”.<sup><a href="#s2">2</a></sup> The recommended fix is heartbeating long-running work, not a longer deadline.<sup><a href="#s2">2</a></sup></p>
+  <p>Our shape is the same with different names. The analysis service abandons a cascade call after its timeout, but abandoning an HTTP request is not cancellation: the callee keeps working unless it checks for a disconnect. The retry then re-runs the whole conversation while the first attempt still holds its resources. Dead-letter volume is worth alarming on, but it “would arrive too late for us to rely on it exclusively to detect problems”,<sup><a href="#s2">2</a></sup> so the lease and the retry budget have to carry the load.</p>
+
+  <h3>Scaling on queue depth is scaling on the wrong metric</h3>
+  <p>Target tracking assumes the metric falls as capacity rises. Queue depth does not: “the number of messages in the queue might not change proportionally to the size of the Auto Scaling group”.<sup><a href="#s1">1</a></sup> The documented metric is backlog per instance — queue depth divided by running capacity — with the target set to acceptable latency divided by per-message processing time. AWS's worked example: 10 seconds ÷ 0.1 seconds per message = a target of 100, against a current backlog per instance of 1500 ÷ 10 = 150, which scales out by five.<sup><a href="#s1">1</a></sup></p>
+  <p>Two consequences for us. Our deploy tool can only point a policy at a single published metric, so the ratio has to be computed and published deliberately, or we scale on CPU and accept the lag. And the target value is a function of per-job processing time, which is exactly the number the first epic exists to produce. Scaling policy is downstream of measurement, not parallel to it.</p>
+
+  <h3>The database is the next bottleneck, and a proxy might not move it</h3>
+  <p>More workers means more connections, and RDS Proxy is the standard answer. It only pays off while sessions carry no state. For PostgreSQL the proxy pins a connection on <code>SET</code>, on <code>PREPARE</code>/<code>DISCARD</code>/<code>DEALLOCATE</code>/<code>EXECUTE</code>, on temporary tables, sequences and cursors, on <code>LISTEN</code>, on library loads, on <code>nextval</code>/<code>setval</code>, on advisory locks, and on any statement whose text exceeds 16 KB.<sup><a href="#s4">4</a></sup> Pinning means “each later transaction uses the same underlying database connection until the session ends”.<sup><a href="#s4">4</a></sup></p>
+  <p>The trap is in the pool, not the application code. AWS calls out pooling libraries that use a discard query as a reset: with <code>DISCARD ALL</code> configured, “RDS Proxy pins your client connection on release”.<sup><a href="#s4">4</a></sup> Our driver's default reset runs an advisory unlock and <code>RESET ALL</code>, both on the pinning list. Shrinking pools is free and reversible; a proxy bought before checking <code>DatabaseConnectionsCurrentlySessionPinned</code> may deliver nothing.<sup><a href="#s4">4</a></sup></p>
+
+  <h2>Cons, and what to do about them:</h2>
+  <dl>
+    <dt>Five epics is a lot of engineering to justify with no measurement in hand.</dt>
+    <dd>True, and the order already answers it: the harness is first and runs against today's code. <i>Mitigation:</i> treat epics two through five as funded by what the first one shows, and cap the harness at a mock, two generators and a metrics pass.</dd>
+
+    <dt>A mocked dependency measures our pipeline, not our product.</dt>
+    <dd>The number will describe queueing, scheduling and writes, with the slowest real component replaced by a stand-in. <i>Mitigation:</i> sample the mock's delays from a measured distribution rather than a constant,<sup><a href="#s3">3</a></sup> give it the real thing's refusal behavior, and label every result as pipeline-only.</dd>
+
+    <dt>Scale-in protection, which keeps autoscaling from killing in-flight jobs, blocks rolling deployments while it is set.</dt>
+    <dd>A worker that protects itself for the length of a long job also holds up a deploy. <i>Mitigation:</i> set protection per job rather than per task lifetime, and bound it to the job's own timeout.</dd>
+
+    <dt>Retention by partition needs a schema change on tables that have no migration tool.</dt>
+    <dd>The tables that grow fastest are the hardest to restructure in place. <i>Mitigation:</i> partition forward from a cutover date, leave existing rows where they are, and drop old partitions rather than deleting rows.</dd>
+  </dl>
+
+  <h2>How it actually works:</h2>
+  <div class="tree">open arrivals ──────┐                 ┌── <b>interactive lane</b> ──┐
+(uploads, API)      ├──► <b>job queue</b> ───┤                       ├──► <b>workers</b> ──► <b>mock</b>
+closed loop ────────┘   <span>fair claim</span>    └── <b>bulk lane</b> ──────────┘    <span>lease +</span>     <span>sampled</span>
+(backfill pull)         <span>per tenant</span>                                <span>heartbeat</span>    <span>delays</span>
+                            │                                          │
+                            └── <span>backlog ÷ running tasks</span> ───────────┴──► <b>scaling policy</b>
+                                <span>(the published metric)</span>
+</div>
+  <div class="caption">The harness drives both arrival shapes at once because they behave differently. The lanes and the per-tenant claim decide who waits. The published ratio, not raw depth, is what a scaling policy can track.</div>
+
+  <h2>What this settles, and what it doesn't:</h2>
+
+  <h3>Settled</h3>
+  <ul class="ledger">
+    <li><b>Two generators, not one.</b> Open and closed arrivals differ in mean response time by an order of magnitude at the same load.<sup><a href="#s3">3</a></sup></li>
+    <li><b>Backlog per task is the scaling metric.</b> Raw depth doesn't move inversely with capacity, and the target is acceptable latency ÷ per-job time.<sup><a href="#s1">1</a></sup></li>
+    <li><b>A lease beats a longer timeout.</b> Redelivery during a running attempt is the documented way an overloaded queue system multiplies its own load.<sup><a href="#s2">2</a></sup></li>
+    <li><b>Pinning can erase a proxy's benefit</b>, and a pool reset that discards session state is a documented cause.<sup><a href="#s4">4</a></sup></li>
+  </ul>
+
+  <h3>Not settled</h3>
+  <ul class="ledger">
+    <li><b>Our per-job service time and its variability.</b> Every target value above is a function of it; no source can supply ours.</li>
+    <li><b>Whether per-tenant ordering plus a concurrency cap is enough at our volumes.</b> This follows from <a href="#s2">[2]</a> and the library note; no source measures this shape.</li>
+    <li><b>Whether our driver actually pins.</b> The two doc pages make it likely, not certain; the metric settles it in one run.<sup><a href="#s4">4</a></sup></li>
+  </ul>
+
+  <h2>Against the library:</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
+      <tbody>
+        <tr><td>Per-tenant ordering makes the queue fair</td><td class="verdict">Conflicts</td><td class="note"><code>multi-tenant-queue-fairness</code> — caps, rate limits and per-tenant backlog, not ordering alone</td></tr>
+        <tr><td>Raising the dispatch timeout past the callee's worst case fixes double-running</td><td class="verdict">Conflicts</td><td class="note"><code>queue-leases-and-retries</code> — a bigger timeout moves the threshold; leases remove it</td></tr>
+        <tr><td>Scale workers on pending queue depth</td><td class="verdict">Conflicts</td><td class="note"><code>autoscaling-queue-workers</code> — backlog per task, target from latency ÷ processing time</td></tr>
+        <tr><td>RDS Proxy is the answer to connection pressure</td><td class="verdict">Conflicts</td><td class="note"><code>rds-proxy-connection-pinning</code> — a default asyncpg reset likely pins every connection</td></tr>
+        <tr><td>Mock the model with fixed delays</td><td class="verdict">Extends</td><td class="note"><code>load-testing-open-vs-closed</code> — variability drives open-system response time</td></tr>
+        <tr><td>Delete old jobs on a schedule</td><td class="verdict">Extends</td><td class="note"><code>postgres-job-queues</code> — DELETE creates the vacuum load; drop partitions instead</td></tr>
+        <tr><td>Statement logging captures conversation text</td><td class="verdict">Confirms</td><td class="note"><code>sensitive-data-in-logs</code> — bind values logged in full by default</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Four of our planned moves were wrong in the same direction: each treated a scheduling or capacity problem as a knob when the source calls for a mechanism. The belief that moved most is about the proxy — it was on the roadmap as a dependency for scaling out, and it may be a no-op until the pool reset changes.</p>
+
+  <h2>Open questions:</h2>
+  <ul>
+    <li>What is the service-time distribution per job, and how heavy is its tail? Every target value depends on it.</li>
+    <li>Is the client's real traffic open, closed, or partly open? The convergence depends on requests per session.<sup><a href="#s3">3</a></sup></li>
+    <li>Does our claim transaction stay short enough under load to keep vacuum ahead of the queue table?</li>
+    <li>What per-tenant concurrency cap is low enough to protect others and high enough to finish a backfill in the promised window?</li>
+  </ul>
+
+  <h2>Sources:</h2>
+  <ol class="sources">
+    <li id="s1"><span class="title">AWS. “Scaling policy based on Amazon SQS.”</span> <i>Amazon EC2 Auto Scaling User Guide</i>, n.d. <a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-using-sqs-queue.html">docs.aws.amazon.com</a> <span class="tier">[T2]</span></li>
+    <li id="s2"><span class="title">David Yanacek. “Avoiding insurmountable queue backlogs.”</span> <i>Amazon Builders' Library</i>, 2019. <a href="https://d1.awsstatic.com/builderslibrary/pdfs/avoiding-insurmountable-queue-backlogs.pdf">d1.awsstatic.com</a> <span class="tier">[T2]</span></li>
+    <li id="s3"><span class="title">Bianca Schroeder, Adam Wierman, Mor Harchol-Balter. “Open Versus Closed: A Cautionary Tale.”</span> <i>USENIX NSDI</i>, 2006. <a href="https://www.usenix.org/legacy/event/nsdi06/tech/full_papers/schroeder/schroeder.pdf">usenix.org</a> <span class="tier">[T1]</span></li>
+    <li id="s4"><span class="title">AWS. “Avoiding pinning an RDS Proxy.”</span> <i>Amazon RDS User Guide</i>, n.d. <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-pinning.html">docs.aws.amazon.com</a> <span class="tier">[T2]</span></li>
+  </ol>
+
+  <hr>
+
+  <footer>
+    <div>Filed to the library</div>
+    <div>Updated · <code>domains/software/reliability/queue-leases-and-retries.md</code> — an abandoned HTTP call is not cancellation</div>
+    <div>Updated · <code>domains/software/reliability/autoscaling-queue-workers.md</code> — publishing backlog per task without metric math</div>
+    <div>Layout <b>software-S2</b> · 17 Sep 2026</div>
+  </footer>
+
+</main>

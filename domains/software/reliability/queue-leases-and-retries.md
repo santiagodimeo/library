@@ -9,7 +9,7 @@ sources:
   - Marc Brooker, "Timeouts, retries, and backoff with jitter", Amazon Builders' Library 2020 — https://d1.awsstatic.com/builderslibrary/pdfs/timeouts-retries-and-backoff-with-jitter.pdf [T2]
   - David Yanacek, "Fairness in multi-tenant systems", Amazon Builders' Library 2019 — https://d1.awsstatic.com/builderslibrary/pdfs/fainess-in-multi-tenant-systems-david-yanacek.pdf [T2]
   - Google, "Addressing Cascading Failures", Site Reliability Engineering 2016 — https://sre.google/sre-book/addressing-cascading-failures/ [T2]
-updated: 2026-09-16
+updated: 2026-09-17
 from: a private investigation
 related: [postgres-job-queues, at-least-once-event-delivery, multi-tenant-queue-fairness, llm-api-throughput-limits]
 ---
@@ -29,3 +29,4 @@ When a dependency returns rate-limit errors, an asynchronous system should apply
 - Cap attempts and move poison jobs to a dead-letter lane with its own alarm. Without a cap they cycle forever (Yanacek 2019a).
 - Track age of first attempt separately from retries, so retries don't hide a growing backlog (Yanacek 2019a).
 - Idempotency keys skip completed replays but not a duplicate still in flight; see [[at-least-once-event-delivery]].
+- The same shape appears without a broker: an HTTP client that gives up on a call has not cancelled it. The callee keeps working unless it checks for a disconnect, so a retry runs the job twice while the first attempt still holds its resources — the fork-bomb case in HTTP clothing (inference from Yanacek 2019a). A caller-side deadline needs a callee-side abort or an idempotency key to match it.

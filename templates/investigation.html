@@ -1,199 +1,364 @@
 <title>{{Short name}}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
 <style>
-  /* Library investigation — shared design system. Fill, don't redesign. */
+  /* Library investigation — shared design system. Fill, don't redesign.
+     Plain-text house style: one serif, one mono, no accent colors, no cards.
+     Emphasis comes from weight and rules, never from hue. */
   :root {
-    --ground: #f6f7f5;
-    --surface: #ffffff;
-    --ink: #1a1e1c;
-    --muted: #5b6560;
-    --rule: #d9ded9;
-    --accent: #1e5a73;
-    --conflicts: #a5372a;
-    --extends: #8a5a00;
-    --confirms: #2e6a4a;
-    --new: #55606a;
-    --t1: #2e6a4a;
-    --t2: #2f5b8f;
-    --t3: #8a5a00;
-    --serif: "Literata", Georgia, "Times New Roman", serif;
-    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --ground: #ffffff;
+    --ink: #000000;
+    --link: #0000ee;
+    --muted: #555555;
+    --rule: #000000;
+    --box: #f2f2f2;
+    --serif: "Times New Roman", Times, "Liberation Serif", serif;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
-      --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
-      --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+      --ground: #0b0b0b;
+      --ink: #e9e9e9;
+      --link: #8ab4ff;
+      --muted: #9b9b9b;
+      --rule: #e9e9e9;
+      --box: #161616;
     }
   }
   :root[data-theme="dark"] {
-    --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
-    --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
-    --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+    --ground: #0b0b0b;
+    --ink: #e9e9e9;
+    --link: #8ab4ff;
+    --muted: #9b9b9b;
+    --rule: #e9e9e9;
+    --box: #161616;
   }
 
   * { box-sizing: border-box; }
+
   body {
     background: var(--ground);
     color: var(--ink);
-    font: 400 1.0625rem/1.68 var(--serif);
-    font-optical-sizing: auto;
-    padding: 0 16px;
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    line-height: 1.34;
+    padding: 0 20px;
+    margin: 0;
     -webkit-font-smoothing: antialiased;
   }
-  main { max-width: 42rem; margin: 0 auto; padding-block: 56px 88px; display: grid; gap: 40px; }
-  a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
-  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 
-  .eyebrow, .meta, .label, th, .chip, sup, .sources, .filed {
-    font-family: var(--mono);
+  main {
+    max-width: 36rem;
+    margin: 0 auto;
+    padding-block: 40px 100px;
   }
-  header { display: grid; gap: 14px; }
-  .eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
   h1 {
-    font: 600 clamp(2rem, 5vw, 2.6rem)/1.12 var(--sans);
-    letter-spacing: -.015em; margin: 0; text-wrap: balance;
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    margin: 0 0 .35em;
   }
-  .question { font-style: italic; color: var(--muted); margin: 0; font-size: 1.125rem; }
-  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .8125rem; color: var(--muted); margin: 4px 0 0; padding: 0; list-style: none; }
-  .meta strong { color: var(--ink); font-weight: 500; }
 
-  .bottom-line {
-    background: var(--surface);
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-    padding: 22px 24px;
-    font-size: 1.1875rem;
-    line-height: 1.6;
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 2.1em 0 .45em;
   }
-  .bottom-line p { margin: 0; }
-  .label { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
 
-  section { display: grid; gap: 14px; }
-  h2 { font: 600 1.3rem/1.3 var(--sans); margin: 0; text-wrap: balance; letter-spacing: -.005em; }
-  section p { margin: 0; }
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 1.5em 0 .2em;
+  }
+
+  p { margin: 0 0 .85em; }
+
+  a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+  ul { margin: 0 0 .9em; padding-left: 1.3em; }
+  li { margin-bottom: .3em; }
+  li > ul { margin-top: .3em; margin-bottom: .4em; }
+
+  .lede { margin-bottom: 1.6em; }
+  .muted { color: var(--muted); }
+
+  .meta {
+    font-family: var(--mono);
+    font-size: .78rem;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0 0 1.8em;
+  }
+  .meta b { color: var(--ink); font-weight: 700; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .82em;
+  }
+
+  .tree {
+    font-family: var(--mono);
+    font-size: .78rem;
+    line-height: 1.5;
+    background: var(--box);
+    padding: 14px 16px;
+    margin: 0 0 1em;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tree b { font-weight: 700; }
+  .tree span { color: var(--muted); }
+
+  .fig {
+    margin: 1.1em 0 1.4em;
+    overflow-x: auto;
+  }
+  .fig svg { display: block; max-width: 100%; height: auto; }
+  .caption { font-size: .9rem; color: var(--muted); margin-top: .3em; }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 2.4em 0 0;
+  }
+
+  dl { margin: 0 0 1em; }
+  dt { font-weight: 700; margin-top: .7em; }
+  dd { margin: 0; }
+
+  .ledger { margin: 0 0 1em; padding-left: 1.3em; }
+  .ledger li { margin-bottom: .45em; }
+  .ledger b { font-weight: 700; }
+
   sup { font-size: .68em; line-height: 0; }
   sup a { text-decoration: none; padding: 0 1px; }
-  blockquote { margin: 0; padding-left: 16px; border-left: 2px solid var(--rule); color: var(--muted); }
 
-  .table-wrap { overflow-x: auto; border-top: 1px solid var(--ink); }
-  table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.45; }
-  th { text-align: left; font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); }
-  td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-  td:first-child { min-width: 14rem; }
-  td:last-child { color: var(--muted); min-width: 10rem; }
-
-  .chip {
-    display: inline-block; font-size: .7rem; font-weight: 500; letter-spacing: .04em;
-    padding: 2px 7px; border-radius: 3px; border: 1px solid currentColor; white-space: nowrap;
+  .table-wrap { overflow-x: auto; margin: 0 0 1em; }
+  table { width: 100%; border-collapse: collapse; font-size: .95rem; line-height: 1.3; }
+  th {
+    text-align: left; font-weight: 700; font-size: .8rem;
+    letter-spacing: .04em; text-transform: uppercase;
+    border-bottom: 1px solid var(--rule); padding: 0 14px .35em 0;
   }
-  .v-conflicts { color: var(--conflicts); }
-  .v-extends { color: var(--extends); }
-  .v-confirms { color: var(--confirms); }
-  .v-new { color: var(--new); }
-  .t1 { color: var(--t1); }
-  .t2 { color: var(--t2); }
-  .t3 { color: var(--t3); }
+  td { vertical-align: top; border-bottom: 1px solid var(--rule); padding: .5em 14px .5em 0; }
+  td:last-child, th:last-child { padding-right: 0; }
+  td.verdict { font-weight: 700; white-space: nowrap; }
+  td.note { color: var(--muted); }
 
-  .flag { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
-  section > p.empty { color: var(--muted); }
-  ul.open { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+  ol.sources { margin: 0; padding-left: 1.6em; font-size: .92rem; line-height: 1.3; }
+  ol.sources li { margin-bottom: .5em; color: var(--muted); }
+  ol.sources .title { color: var(--ink); }
+  ol.sources li:target { color: var(--ink); }
+  ol.sources a { word-break: break-word; }
+  .tier { font-family: var(--mono); font-size: .72em; letter-spacing: .04em; color: var(--ink); }
+  .flag { font-family: var(--mono); font-size: .72em; color: var(--muted); }
 
-  .sources { margin: 0; padding-left: 2.2em; font-size: .8125rem; line-height: 1.55; display: grid; gap: 10px; color: var(--muted); }
-  .sources li::marker { color: var(--muted); }
-  .sources .title { color: var(--ink); }
-  .sources a { word-break: break-word; }
-  .sources li:target { color: var(--ink); }
-
-  footer.filed { border-top: 1px solid var(--rule); padding-top: 16px; font-size: .75rem; color: var(--muted); display: grid; gap: 4px; }
-  footer.filed code { font-family: inherit; color: var(--ink); }
+  footer {
+    font-family: var(--mono);
+    font-size: .72rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-top: 1.4em;
+  }
+  footer b { color: var(--ink); font-weight: 700; }
 
   @media (max-width: 480px) {
-    main { padding-block: 32px 64px; gap: 32px; }
-    body { font-size: 1rem; }
-    .bottom-line { padding: 18px; font-size: 1.0625rem; }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    html { scroll-behavior: smooth; }
+    body { font-size: 1.0625rem; }
+    h1 { font-size: 2.1rem; }
+    h2 { font-size: 1.4rem; }
+    main { padding-block: 28px 72px; }
   }
 </style>
 
+<!-- =====================================================================
+     BLOCKS. The layout chosen for this investigation (see SKILL.md §Layout)
+     says which of these appear and in what order. Delete every block the
+     layout doesn't name. Never invent a block that isn't here.
+     `lede`, `body`, `contrast`, `open`, `sources` and the footer are in
+     every layout. The rest are optional and ordered by the layout.
+     ===================================================================== -->
+
 <main>
-  <header>
-    <span class="eyebrow">Investigation · {{primary domain}}{{ · secondary domain}}</span>
-    <h1>{{Title}}</h1>
-    <p class="question">{{The one-sentence question}}</p>
-    <ul class="meta">
-      <li>{{16 Sep 2026}}</li>
-      <li>{{7}} min read</li>
-      <li>Confidence <strong>{{High}}</strong> — {{why}}</li>
-      <!-- repo mode only --><li>Repo <strong>{{name}}</strong></li>
-    </ul>
-  </header>
 
-  <div class="bottom-line">
-    <span class="label">Bottom line</span>
-    <p>{{Two or three sentences.}}</p>
+  <!-- block: lede — title, bottom line, meta. Always first, never moves. -->
+  <h1>{{Title}}</h1>
+
+  <p class="lede">{{Bottom line. Three or four sentences: the answer, the
+  condition it holds under, and the one thing that would change it. No heading,
+  no "Introduction", no throat-clearing.}}</p>
+
+  <p class="meta">{{16 Sep 2026}} · {{7}} min · confidence <b>{{High}}</b>, {{why in
+  one clause}} · {{software}}{{, hardware}}<!-- repo mode only --> · repo <b>{{name}}</b></p>
+  <!-- /block -->
+
+  <!-- block: tldr -->
+  <h2>TL;DR:</h2>
+  <ul>
+    <li>{{One takeaway per bullet, four to six. Each one is a claim, not a
+      topic. The first bullet is the one that matters most.}}</li>
+  </ul>
+  <!-- /block -->
+
+  <!-- block: context -->
+  <h2>{{Why this question is live:}}</h2>
+  <p>{{Two or three short paragraphs. What's at stake, why the obvious answer
+  is wrong or incomplete, what a reader already believes that this will
+  test.}}</p>
+  <!-- /block -->
+
+  <!-- block: body — always present. Three to five findings as h3 claims.
+       The h2 is topical and ends in a colon; the h3s are claims and don't. -->
+  <h2>{{What the evidence says:}}</h2>
+
+  <h3>{{Finding stated as a claim}}</h3>
+  <p>{{Short paragraphs, two to four sentences. Every sourced claim carries a
+  superscript.}}<sup><a href="#s1">1</a></sup> {{Numbers keep their units and
+  conditions.}}</p>
+
+  <h3>{{Second finding stated as a claim}}</h3>
+  <p>{{…}}<sup><a href="#s2">2</a></sup></p>
+  <!-- /block -->
+
+  <!-- block: mechanism — at most one per investigation, and only when it shows
+       something prose can't. A `.tree` for structure, a `.fig` for flow. -->
+  <h2>{{How it actually works:}}</h2>
+
+  <div class="tree"><b>{{root/}}</b>
+  {{child}}          <span>{{what it holds}}</span>
+</div>
+
+  <div class="fig">
+    <svg viewBox="0 0 560 300" role="img" aria-label="{{what the diagram shows, in one sentence}}">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g fill="currentColor" font-family="Times New Roman, Times, serif" font-size="14">
+        <rect x="1" y="1" width="230" height="34" fill="none" stroke="currentColor" stroke-width="1"/>
+        <text x="16" y="23">{{step}}</text>
+        <line x1="116" y1="35" x2="116" y2="61" stroke="currentColor" stroke-width="1" marker-end="url(#ah)"/>
+      </g>
+    </svg>
+    <div class="caption">{{What to take from it.}}</div>
   </div>
+  <!-- /block -->
 
-  <!-- repeat: one section per finding. Heading is the claim. -->
-  <section>
-    <h2>{{Finding stated as a claim}}</h2>
-    <p>{{Paragraph with a citation.}}<sup><a href="#s1">1</a></sup></p>
-  </section>
-  <!-- /repeat -->
+  <!-- block: numbers — the quantities the decision turns on. Hardware and
+       biology mostly; anywhere a table beats three paragraphs. -->
+  <h2>{{The numbers:}}</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>{{Thing}}</th><th>{{Measure}}</th><th>{{Conditions}}</th></tr></thead>
+      <tbody>
+        <tr><td>{{name}}</td><td>{{value with unit}}<sup><a href="#s1">1</a></sup></td><td class="note">{{design, n, caveat}}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- /block -->
 
-  <section>
-    <h2>Against the library</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
-        <tbody>
-          <!-- repeat: Conflicts first, then Extends, Confirms, New -->
-          <tr><td>{{claim}}</td><td><span class="chip v-conflicts">Conflicts</span></td><td>{{slug}} — {{what it says}}</td></tr>
-          <tr><td>{{claim}}</td><td><span class="chip v-extends">Extends</span></td><td>{{slug}}</td></tr>
-          <tr><td>{{claim}}</td><td><span class="chip v-confirms">Confirms</span></td><td>{{slug}}</td></tr>
-          <tr><td>{{claim}}</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
-          <!-- /repeat -->
-        </tbody>
-      </table>
-    </div>
-    <p>{{What the contrast means.}}</p>
-    <!-- when every row would be New, replace the table and paragraph above with: -->
-    <p class="empty">{{The library had nothing here; these findings are now its baseline in …}}</p>
-  </section>
+  <!-- block: ledger — what the evidence settles and what it leaves open.
+       Two lists, in this order, always both. -->
+  <h2>{{What this settles, and what it doesn't:}}</h2>
 
-  <section>
-    <h2>Open questions</h2>
-    <ul class="open">
-      <li>{{question}}</li>
-    </ul>
-  </section>
+  <h3>Settled</h3>
+  <ul class="ledger">
+    <li><b>{{The claim, in a few words.}}</b> {{Why it's settled, with the
+      source and the number.}}<sup><a href="#s1">1</a></sup></li>
+  </ul>
 
-  <section>
-    <h2>Sources</h2>
-    <ol class="sources">
-      <!-- repeat: id="sN" matches the superscript href -->
-      <li id="s1"><span class="title">{{Author(s). "Title."}}</span> <em>{{Venue}}</em>, {{Year}}. <a href="{{URL}}">{{short URL}}</a> <span class="chip t1">T1</span> <span class="flag">{{· abstract only}}</span></li>
-      <!-- /repeat -->
-    </ol>
-  </section>
+  <h3>Not settled</h3>
+  <ul class="ledger">
+    <li><b>{{The claim.}}</b> {{What's missing — no replication, one study, a
+      condition nobody tested.}} {{Mark inference: this follows from [1] and
+      [2]; no source measures it.}}</li>
+  </ul>
+  <!-- /block -->
 
-  <!-- optional: delete when empty -->
-  <section>
-    <h2>Proposed sources</h2>
-    <ul class="open">
-      <li>{{Source}} — <code>{{domain}}</code>, proposed {{T2}}: {{why it belongs}}</li>
-    </ul>
-  </section>
-  <!-- /optional -->
+  <!-- block: contested — the strongest position against the bottom line,
+       stated so its holder would recognize it. -->
+  <h2>{{The strongest case against:}}</h2>
+  <p>{{Two or three paragraphs. State it at full strength first, then say what
+  it would take to settle it — not why it's wrong.}}<sup><a href="#s3">3</a></sup></p>
+  <!-- /block -->
 
-  <footer class="filed">
-    <span>Filed to the library</span>
-    <!-- repeat --><span>New · <code>{{domains/…/slug.md}}</code></span><!-- /repeat -->
-    <!-- repeat --><span>Updated · <code>{{domains/…/slug.md}}</code> — {{what changed}}</span><!-- /repeat -->
+  <!-- block: cons — objections paired with what to do about each. -->
+  <h2>{{Cons, and what to do about them:}}</h2>
+  <dl>
+    <dt>{{The objection, as a statement.}}</dt>
+    <dd>{{Why it's real, with the number.}} <i>Mitigation:</i> {{what actually
+      removes it, not what reduces the worry about it.}}</dd>
+  </dl>
+  <!-- /block -->
+
+  <!-- block: applications — where this shows up beyond the question asked. -->
+  <h2>{{Where else this applies:}}</h2>
+  <ul>
+    <li><b>{{Case.}}</b> {{One or two sentences.}}</li>
+  </ul>
+  <!-- /block -->
+
+  <!-- block: gains — what changes for the reader if they act on this. -->
+  <h2>{{What you get from believing this:}}</h2>
+  <ul>
+    <li><b>{{The gain.}}</b> {{What it changes in practice. The first one is
+      the one that matters; say so.}}</li>
+  </ul>
+  <p class="muted">{{Who gains nothing here, and why. One or two sentences.}}</p>
+  <!-- /block -->
+
+  <!-- block: contrast — always present. Conflicts, Extends, Confirms, New,
+       in that order. When every row would be New, delete the table and keep
+       only the paragraph. -->
+  <h2>Against the library:</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
+      <tbody>
+        <tr><td>{{claim}}</td><td class="verdict">Conflicts</td><td class="note"><code>{{slug}}</code> — {{what the note says}}</td></tr>
+        <tr><td>{{claim}}</td><td class="verdict">Extends</td><td class="note"><code>{{slug}}</code></td></tr>
+        <tr><td>{{claim}}</td><td class="verdict">Confirms</td><td class="note"><code>{{slug}}</code></td></tr>
+        <tr><td>{{claim}}</td><td class="verdict">New</td><td class="note">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>{{Which belief moved, in one or two sentences.}}</p>
+  <p class="muted">{{Table-less variant: the library had nothing here; these
+  findings are now its baseline in <code>{{slug}}</code>.}}</p>
+  <!-- /block -->
+
+  <!-- block: open — always present. -->
+  <h2>Open questions:</h2>
+  <ul>
+    <li>{{What the evidence doesn't settle. Two to four, one line each.}}</li>
+  </ul>
+  <!-- /block -->
+
+  <!-- block: sources — always present, always last before the rule. -->
+  <h2>Sources:</h2>
+  <ol class="sources">
+    <li id="s1"><span class="title">{{Author(s). "Title."}}</span> <i>{{Venue}}</i>, {{Year}}. <a href="{{URL}}">{{short URL}}</a> <span class="tier">[T1]</span> <span class="flag">{{· abstract only}}</span></li>
+  </ol>
+  <!-- /block -->
+
+  <!-- block: proposed — delete when empty. -->
+  <h2>Proposed sources:</h2>
+  <ul>
+    <li>{{Source}} — <code>{{domain}}</code>, proposed <span class="tier">[T2]</span>: {{why it belongs}}</li>
+  </ul>
+  <!-- /block -->
+
+  <hr>
+
+  <!-- block: filed — always last -->
+  <footer>
+    <div>Filed to the library</div>
+    <div>New · <code>{{domains/…/slug.md}}</code></div>
+    <div>Updated · <code>{{domains/…/slug.md}}</code> — {{what changed}}</div>
+    <div>Layout <b>{{software-S1}}</b> · {{2026-09-17}}</div>
   </footer>
+  <!-- /block -->
+
 </main>

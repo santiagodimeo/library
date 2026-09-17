@@ -10,7 +10,7 @@ sources:
   - AWS, "Protect your Amazon ECS tasks from being terminated by scale-in events", Amazon ECS Developer Guide n.d. — https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-scale-in-protection.html [T2]
   - AWS, "Amazon ECS clusters for Fargate", Amazon ECS Developer Guide n.d. — https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html [T2]
   - AWS, "Linux containers on Fargate container image pull behavior", Amazon ECS Developer Guide n.d. — https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-pull-behavior.html [T2]
-updated: 2026-09-16
+updated: 2026-09-17
 from: a private investigation
 related: [multi-tenant-queue-fairness, queue-leases-and-retries, rds-proxy-connection-pinning]
 ---
@@ -25,5 +25,6 @@ Slow scale-in still kills in-flight work. ECS task scale-in protection is set fr
 
 ## Tradeoffs
 
+- When the deployment platform can't express metric math, backlog per task has to be published as its own metric, by something that knows both the depth and the running task count — or the policy falls back to a utilization metric and reacts later. Scaling on raw depth because the ratio is inconvenient is the failure AWS names (inference from AWS n.d. a, n.d. b).
 - Fargate Spot sends a two-minute warning via EventBridge and SIGTERM, `stopTimeout` defaults to 30 s with a 120 s max, and there's no automatic fallback to on-demand when Spot capacity runs out (AWS n.d. d). Keep an on-demand base. Scale-in protection doesn't cover Spot interruption (inference from AWS n.d. c), so jobs must survive losing a task; see [[queue-leases-and-retries]].
 - Fargate doesn't cache image layers, so every new task pulls the full image. SOCI lazy loading is recommended above 250 MB, plus smaller images and a same-Region registry endpoint (AWS n.d. e). Model loading after the pull isn't helped by this (inference).
