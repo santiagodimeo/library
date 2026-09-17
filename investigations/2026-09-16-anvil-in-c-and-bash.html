@@ -1,0 +1,238 @@
+<title>Anvil in C and Bash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  /* Library investigation — shared design system. Fill, don't redesign. */
+  :root {
+    --ground: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1a1e1c;
+    --muted: #5b6560;
+    --rule: #d9ded9;
+    --accent: #1e5a73;
+    --conflicts: #a5372a;
+    --extends: #8a5a00;
+    --confirms: #2e6a4a;
+    --new: #55606a;
+    --t1: #2e6a4a;
+    --t2: #2f5b8f;
+    --t3: #8a5a00;
+    --serif: "Literata", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+      --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+      --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+    --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+    --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 1.0625rem/1.68 var(--serif);
+    font-optical-sizing: auto;
+    padding: 0 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 42rem; margin: 0 auto; padding-block: 56px 88px; display: grid; gap: 40px; }
+  a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .eyebrow, .meta, .label, th, .chip, sup, .sources, .filed {
+    font-family: var(--mono);
+  }
+  header { display: grid; gap: 14px; }
+  .eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    font: 600 clamp(2rem, 5vw, 2.6rem)/1.12 var(--sans);
+    letter-spacing: -.015em; margin: 0; text-wrap: balance;
+  }
+  .question { font-style: italic; color: var(--muted); margin: 0; font-size: 1.125rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .8125rem; color: var(--muted); margin: 4px 0 0; padding: 0; list-style: none; }
+  .meta strong { color: var(--ink); font-weight: 500; }
+
+  .bottom-line {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 24px;
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+  .bottom-line p { margin: 0; }
+  .label { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+
+  section { display: grid; gap: 14px; }
+  h2 { font: 600 1.3rem/1.3 var(--sans); margin: 0; text-wrap: balance; letter-spacing: -.005em; }
+  section p { margin: 0; }
+  sup { font-size: .68em; line-height: 0; }
+  sup a { text-decoration: none; padding: 0 1px; }
+  blockquote { margin: 0; padding-left: 16px; border-left: 2px solid var(--rule); color: var(--muted); }
+
+  .table-wrap { overflow-x: auto; border-top: 1px solid var(--ink); }
+  table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.45; }
+  th { text-align: left; font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); }
+  td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td:first-child { min-width: 14rem; }
+  td:last-child { color: var(--muted); min-width: 10rem; }
+
+  .chip {
+    display: inline-block; font-size: .7rem; font-weight: 500; letter-spacing: .04em;
+    padding: 2px 7px; border-radius: 3px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .v-conflicts { color: var(--conflicts); }
+  .v-extends { color: var(--extends); }
+  .v-confirms { color: var(--confirms); }
+  .v-new { color: var(--new); }
+  .t1 { color: var(--t1); }
+  .t2 { color: var(--t2); }
+  .t3 { color: var(--t3); }
+
+  .flag { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+  section > p.empty { color: var(--muted); }
+  ul.open { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+  .sources { margin: 0; padding-left: 2.2em; font-size: .8125rem; line-height: 1.55; display: grid; gap: 10px; color: var(--muted); }
+  .sources li::marker { color: var(--muted); }
+  .sources .title { color: var(--ink); }
+  .sources a { word-break: break-word; }
+  .sources li:target { color: var(--ink); }
+
+  footer.filed { border-top: 1px solid var(--rule); padding-top: 16px; font-size: .75rem; color: var(--muted); display: grid; gap: 4px; }
+  footer.filed code { font-family: inherit; color: var(--ink); }
+
+  @media (max-width: 480px) {
+    main { padding-block: 32px 64px; gap: 32px; }
+    body { font-size: 1rem; }
+    .bottom-line { padding: 18px; font-size: 1.0625rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">Investigation · software</span>
+    <h1>Anvil in C and Bash</h1>
+    <p class="question">If anvil's deterministic layer becomes a vendor-neutral MCP server written in C and Bash, what does that substrate buy in control over an agent, and what does it cost?</p>
+    <ul class="meta">
+      <li>16 Sep 2026</li>
+      <li>7 min read</li>
+      <li>Confidence <strong>Medium</strong> — T1 principles, but the sharpest numbers are preprints and vendor-reported</li>
+      <li>Repo <strong>anvil</strong></li>
+    </ul>
+  </header>
+
+  <div class="bottom-line">
+    <span class="label">Bottom line</span>
+    <p>The control comes from the mediation boundary, not from C. Moving anvil's rules out of prompt text into a program that decides and then refuses is the whole win, and it is language-independent. C then makes a specific trade: it is the right size for the job — an MCP stdio server is a small surface, and NIST treats smallness as a precondition for a mechanism being assessable at all — but anvil's deterministic layer is a parser of attacker-influenced strings, which is the worst place to spend memory safety. The thing that would change the calculus is not the language: it is whether the shell stays out of the command path.</p>
+  </div>
+
+  <section>
+    <h2>The control is the refusal, not the language</h2>
+    <p>NIST's Mediated Access principle is that "All access to and operations on system elements are mediated," and that without mediation "no basis exists upon which to claim that security is achieved"<sup><a href="#s1">1</a></sup>. It splits enforcement into a policy decision and the enforcement of that decision. A rule written in a prompt collapses those two into one component, and that component is the model.</p>
+    <p>NIST also states what a mechanism must satisfy to count as protection at all: NON-BYPASSABLE, EVALUATABLE ("sufficiently small and simple enough to be assessed to produce adequate confidence in the protection provided"), ALWAYS INVOKED, and TAMPER-PROOF<sup><a href="#s1">1</a></sup>. Anvil's current sweep rules — never touch a dirty tree, never push, Docker is always an ask — fail the first and the third by construction. They hold when the model complies and are silent when it does not.</p>
+    <p>The empirical picture agrees with the principle. OWASP's position is that in-model prevention is not achievable — "it is unclear if there are fool-proof methods of prevention" — and every mitigation it lists is external, including "Define and validate expected output formats using deterministic code"<sup><a href="#s2">2</a></sup>. Eight published defenses against indirect prompt injection were broken by adaptive attacks with success rates over 50% against all of them<sup><a href="#s3">3</a></sup> <em>(unreplicated)</em>. The strongest demonstration of the alternative fixes control flow in an interpreter and lets the model supply only values: it solved 77% of AgentDojo tasks against 84% undefended, and cut successful attacks on one model from 300 to 0 out of 949<sup><a href="#s4">4</a></sup> <em>(unreplicated)</em>.</p>
+    <p>That is the argument for the rewrite, and none of it mentions a language. A plan tool that classifies actions and an apply tool that refuses any id it did not itself classify satisfies non-bypassable and always-invoked in Go, in Rust, or in C. Choosing C is a separate decision with separate consequences.</p>
+  </section>
+
+  <section>
+    <h2>C's risk lands exactly on anvil's input surface</h2>
+    <p>What the deterministic layer actually does is parse. It reads JSON-RPC from a pipe, <code>.claude.json</code> from disk, and then strings it did not author: git refs, GitHub PR titles, worktree paths, Docker compose labels. Anyone with push access to a fork writes some of those, and sweep reads them across every repo you own in one run.</p>
+    <p>Memory safety is the dominant severe-bug class in large C/C++ codebases: about 70% of high and critical vulnerabilities in Chrome and in Android, 68% of Project Zero's in-the-wild zero-days, and 70% of Microsoft vulnerabilities with CVEs<sup><a href="#s5">5</a></sup>. Google's own server-side fleet sits far lower at 16–29%<sup><a href="#s5">5</a></sup>, which is the useful qualifier — the proportion tracks exposure to hostile input, and a parser is the high end of that range, not the low one.</p>
+    <p>These bugs also last. Across 5,914 CVEs in 11 FOSS projects, memory and resource-management vulnerabilities had a mean lifetime of 1,633.60 days against 1,354.07 for input-validation bugs, and the longest-lived project in the set was tcpdump — a parser of untrusted network input — at a mean of 3,168.58 days, roughly 8.7 years<sup><a href="#s6">6</a></sup>. The same study found the arrival of modern fuzzing produced "no significant difference in the lifetime trend" for Linux memory CVEs<sup><a href="#s6">6</a></sup>.</p>
+    <p>Tooling narrows this without closing it. AddressSanitizer found over 300 unknown bugs in Chromium in ten months, 210 of them heap use-after-free, at 73% average slowdown and 3.4x memory<sup><a href="#s7">7</a></sup>. CVE-2023-4863 in libwebp still escaped 97.55% fuzzing coverage of its own file, and Chrome's targeted use-after-free mitigation covers 50% of such issues<sup><a href="#s5">5</a></sup>.</p>
+  </section>
+
+  <section>
+    <h2>Smallness is the one argument that genuinely favors C</h2>
+    <p>NIST's EVALUATABLE criterion cuts the other way once the surface is small enough. It recommends formal methods "for key modules rather than entire applications," and its worked example of what is tractable is the seL4 verification at "about 10 000 lines of C code"<sup><a href="#s8">8</a></sup>. Its Reduced Complexity principle says the same thing in reverse: complexity "increases the difficulty in identifying and assessing loss scenarios, susceptibilities, and vulnerabilities"<sup><a href="#s1">1</a></sup>.</p>
+    <p>The MCP stdio surface is genuinely that small. Messages are UTF-8 JSON-RPC 2.0, newline-delimited, with no embedded newlines<sup><a href="#s9">9</a></sup>. Since the 2026-07-28 revision the protocol is stateless, with no protocol-level session — a server that needs state mints an explicit handle and receives it back as an ordinary tool argument<sup><a href="#s10">10</a></sup>. The methods that matter are <code>server/discover</code>, <code>tools/list</code> and <code>tools/call</code>, plus two error shapes. That is a few hundred lines, not a framework.</p>
+    <p>The discipline that makes it hold is the Recognizer Pattern: recognize input fully against a formal specification, then hand validated objects across a boundary that program logic never crosses backwards. Its named failure mode is the "shotgun parser," where "validation is spread across an implementation, and program logic grabs data from the input-handling code before the full data's correctness is assured"<sup><a href="#s11">11</a></sup>. The same article counts 850 XML-related CVEs against 96 for JSON, attributing the gap to JSON taking no action until the object is complete<sup><a href="#s11">11</a></sup>. A line-delimited JSON protocol starts on the right side of that line — unless the implementation throws it away by acting on half-parsed input.</p>
+  </section>
+
+  <section>
+    <h2>Bash is where the injection lives</h2>
+    <p>The sharper risk is not memory, it is the command path. OWASP's first defense is not to call an OS command at all; when the tool is the point, "the command must be separated from its arguments," and an argv API "does NOT try to invoke the shell at any point," so the metacharacter set never gets interpreted<sup><a href="#s12">12</a></sup>. That is not a Bash-friendly requirement. A shell script that interpolates a ref name into a <code>git</code> invocation is building a string, which is the shape the defense exists to eliminate.</p>
+    <p>Separating arguments is necessary and not sufficient: "Every OS Command Injection is also an Argument Injection"<sup><a href="#s12">12</a></sup>. GitPython was remotely exploitable in every version because a crafted remote URL could be injected into a <code>git clone</code> invocation — CWE-20, CVSS 3.1 9.8<sup><a href="#s13">13</a></sup>. And this is current: CVE-2026-31862, from March 2026, records a Git-driving tool whose API endpoints interpolated user-controlled file, ref, message and commit parameters into shell calls — CWE-78, CVSS 3.1 9.1<sup><a href="#s14">14</a></sup>. That is anvil's exact input list.</p>
+    <p>Shell is also a poor place for a predicate that must hold. Pinning down POSIX shell behavior required a mechanized semantics, which turned out to be more conformant than any of bash, dash, zsh, OSH, mksh, ksh93 or yash<sup><a href="#s15">15</a></sup> <em>(unreplicated)</em> — the converse being that every shell in use carries known divergences. Static analysis fares no better: PaSh-JIT moved its analysis to run time because of "the dynamic behaviors pervasive in shell scripts—e.g., variable expansion and command substitution"<sup><a href="#s16">16</a></sup>.</p>
+    <p>One mechanical hazard belongs here too. The stdio transport says the server "MUST NOT write anything to its <code>stdout</code> that is not a valid MCP message"<sup><a href="#s9">9</a></sup>, and a spawned child inherits its parent's stdout unless redirected. Every <code>git</code>, <code>gh</code> and <code>docker</code> call must have its stdout captured explicitly or the transport corrupts. This follows from <a href="#s9">[9]</a> and standard POSIX descriptor inheritance; no source states it.</p>
+  </section>
+
+  <section>
+    <h2>Where it breaks</h2>
+    <p>Deterministic mediation is not a guarantee, and its own authors say so: it "doesn't aim to defend against attacks that do not affect the control nor the data flow," it is "vulnerable to side-channel attacks," and it requires "users needing to codify and specify security policies and maintain them"<sup><a href="#s4">4</a></sup>. A planner that classifies correctly and an executor that refuses faithfully still execute a plan that was wrong for reasons no predicate encodes.</p>
+    <p>Falling back on a human gate is weaker than it reads. Across over 25 million warning impressions, click-through ran from about a tenth of Firefox malware warnings to 70.2% of Chrome SSL warnings — a sevenfold spread on presentation alone<sup><a href="#s17">17</a></sup>. Anvil's Ask tier inherits that curve, which is an argument for keeping the tier small rather than for widening it.</p>
+    <p>Two costs are structural. The 70% memory-safety family is vendor self-reporting restated in a vendor whitepaper<sup><a href="#s5">5</a></sup>, not an independent replication — directionally solid, not a measured constant. And there is no C SDK at any tier: Tier 1 covers TypeScript, Python, C#, Go and Rust<sup><a href="#s18">18</a></sup>. Version 2026-07-28 alone deprecated roots, sampling, logging and dynamic client registration<sup><a href="#s19">19</a></sup>. In C, that migration is yours.</p>
+    <p>One sizing note favors anvil: keeping the exported surface under ten tools avoids the regime where definitions dominate context and selection accuracy degrades past 30–50 tools<sup><a href="#s20">20</a></sup>.</p>
+  </section>
+
+  <section>
+    <h2>Against the library</h2>
+    <p class="empty">The library had nothing on any of this. Six notes now hold the baseline, in <code>software/ai-systems</code>, <code>software/security</code> and <code>software/languages-runtimes</code>.</p>
+  </section>
+
+  <section>
+    <h2>Open questions</h2>
+    <ul class="open">
+      <li>Does the plan/apply handle need entropy and expiry on a single-client stdio server, where the spec's state-handle guidance assumes a multi-user service?</li>
+      <li>Is there an independent, non-vendor measurement of memory-safety proportions for a small C parser, rather than for browser-scale codebases?</li>
+      <li>Does moving the commit-message and ref-name gates from harness hooks into git's own hooks change their bypass rate in practice, or only their coverage?</li>
+      <li>What is the smallest predicate set that makes sweep's Never tier non-bypassable, and can it be property-tested rather than argued?</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Sources</h2>
+    <ol class="sources">
+      <li id="s1"><span class="title">Ross, R., Winstead, M., McEvilley, M. "Engineering Trustworthy Secure Systems."</span> <em>NIST SP 800-160v1r1</em>, 2022. <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-160v1r1.pdf">nvlpubs.nist.gov</a> <span class="chip t1">T1</span></li>
+      <li id="s2"><span class="title">OWASP GenAI Security Project. "LLM01: Prompt Injection."</span> <em>OWASP Top 10 for LLM Applications</em>, 2025. <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">genai.owasp.org</a> <span class="chip t2">T2</span></li>
+      <li id="s3"><span class="title">Zhan, Q., Fang, R., Panchal, H. S., Kang, D. "Adaptive Attacks Break Defenses Against Indirect Prompt Injection Attacks on LLM Agents."</span> <em>arXiv:2503.00061</em>, 2025. <a href="https://arxiv.org/abs/2503.00061">arxiv.org/abs/2503.00061</a> <span class="chip t3">T3</span> <span class="flag">· abstract only</span></li>
+      <li id="s4"><span class="title">Debenedetti, E., Shumailov, I., Fan, T., Hayes, J., Carlini, N., Fabian, D., Kern, C., Shi, C., Terzis, A., Tramèr, F. "Defeating Prompt Injections by Design."</span> <em>arXiv:2503.18813v2</em>, 2025. <a href="https://arxiv.org/pdf/2503.18813">arxiv.org/pdf/2503.18813</a> <span class="chip t3">T3</span></li>
+      <li id="s5"><span class="title">Rebert, A., Kern, C. "Secure by Design: Google's Perspective on Memory Safety."</span> <em>Google Security Engineering</em>, 2024. <a href="https://research.google/pubs/secure-by-design-googles-perspective-on-memory-safety/">research.google</a> <span class="chip t1">T1</span> <span class="flag">· figures read from the Google-hosted PDF</span></li>
+      <li id="s6"><span class="title">Alexopoulos, N., Brack, M., Wagner, J. P., Grube, T., Mühlhäuser, M. "How Long Do Vulnerabilities Live in the Code?"</span> <em>31st USENIX Security Symposium</em>, 2022. <a href="https://www.usenix.org/conference/usenixsecurity22/presentation/alexopoulos">usenix.org</a> <span class="chip t1">T1</span></li>
+      <li id="s7"><span class="title">Serebryany, K., Bruening, D., Potapenko, A., Vyukov, D. "AddressSanitizer: A Fast Address Sanity Checker."</span> <em>USENIX ATC '12</em>, 2012. <a href="https://www.usenix.org/system/files/conference/atc12/atc12-final39.pdf">usenix.org</a> <span class="chip t1">T1</span></li>
+      <li id="s8"><span class="title">Black, P. E., Badger, M., Guttman, B., Fong, E. "Dramatically Reducing Software Vulnerabilities."</span> <em>NISTIR 8151</em>, 2016. <a href="https://nvlpubs.nist.gov/nistpubs/ir/2016/nist.ir.8151.pdf">nvlpubs.nist.gov</a> <span class="chip t1">T1</span></li>
+      <li id="s9"><span class="title">Model Context Protocol. "Transports."</span> <em>MCP specification 2025-06-18</em>. <a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports">modelcontextprotocol.io</a> <span class="chip t3">T3</span> <span class="flag">· not in registry</span></li>
+      <li id="s10"><span class="title">Model Context Protocol. "Tools."</span> <em>MCP specification 2026-07-28</em>. <a href="https://modelcontextprotocol.io/specification/2026-07-28/server/tools">modelcontextprotocol.io</a> <span class="chip t3">T3</span> <span class="flag">· not in registry</span></li>
+      <li id="s11"><span class="title">Bratus, S., Hermerschmidt, L., Hallberg, S. M., Locasto, M. E., Momot, F. D., Patterson, M. L., Shubina, A. "Curing the Vulnerable Parser: Design Patterns for Secure Input Handling."</span> <em>;login:</em>, USENIX, 42(1), 2017. <a href="https://www.usenix.org/system/files/login/articles/login_spring17_08_bratus.pdf">usenix.org</a> <span class="chip t1">T1</span></li>
+      <li id="s12"><span class="title">OWASP. "OS Command Injection Defense Cheat Sheet."</span> <em>OWASP Cheat Sheet Series</em>, n.d. <a href="https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html">cheatsheetseries.owasp.org</a> <span class="chip t2">T2</span></li>
+      <li id="s13"><span class="title">NIST NVD. "CVE-2022-24439."</span> <em>National Vulnerability Database</em>, 2022. <a href="https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2022-24439">nvd.nist.gov</a> <span class="chip t1">T1</span></li>
+      <li id="s14"><span class="title">NIST NVD. "CVE-2026-31862."</span> <em>National Vulnerability Database</em>, 2026. <a href="https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2026-31862">nvd.nist.gov</a> <span class="chip t1">T1</span></li>
+      <li id="s15"><span class="title">Greenberg, M., Blatt, A. J. "Executable formal semantics for the POSIX shell."</span> <em>Proc. ACM Program. Lang.</em> 4(POPL), 2020. <a href="https://arxiv.org/abs/1907.05308">arxiv.org/abs/1907.05308</a> <span class="chip t3">T3</span> <span class="flag">· abstract only; refereed version returned 403</span></li>
+      <li id="s16"><span class="title">Kallas, K., Mustafa, T., Bielak, J., Karnikis, D., Dang, T. N., Greenberg, M., Vasilakis, N. "Practically Correct, Just-in-Time Shell Script Parallelization."</span> <em>OSDI '22</em>, 2022. <a href="https://www.usenix.org/conference/osdi22/presentation/kallas">usenix.org</a> <span class="chip t1">T1</span> <span class="flag">· abstract only</span></li>
+      <li id="s17"><span class="title">Akhawe, D., Felt, A. P. "Alice in Warningland: A Large-Scale Field Study of Browser Security Warning Effectiveness."</span> <em>22nd USENIX Security Symposium</em>, 2013. <a href="https://www.usenix.org/system/files/conference/usenixsecurity13/sec13-paper_akhawe.pdf">usenix.org</a> <span class="chip t1">T1</span></li>
+      <li id="s18"><span class="title">Model Context Protocol. "SDKs."</span> <em>MCP docs</em>, n.d. <a href="https://modelcontextprotocol.io/docs/sdk">modelcontextprotocol.io</a> <span class="chip t3">T3</span> <span class="flag">· not in registry</span></li>
+      <li id="s19"><span class="title">Model Context Protocol. "Deprecated Features."</span> <em>MCP specification 2026-07-28</em>. <a href="https://modelcontextprotocol.io/specification/2026-07-28/deprecated">modelcontextprotocol.io</a> <span class="chip t3">T3</span> <span class="flag">· not in registry</span></li>
+      <li id="s20"><span class="title">Anthropic. "Tool search tool."</span> <em>Claude Platform docs</em>, n.d. <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool">platform.claude.com</a> <span class="chip t2">T2</span> <span class="flag">· fetched 2026-09-16</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Proposed sources</h2>
+    <ul class="open">
+      <li>Model Context Protocol specification and docs — <code>modelcontextprotocol.io</code>, proposed <strong>T2</strong>: a project's own documentation is primary for that project's behavior, which is the rule the registry already applies to PostgreSQL, Kafka and Debezium. Used here as T3 only because no row exists yet.</li>
+    </ul>
+  </section>
+
+  <footer class="filed">
+    <span>Filed to the library</span>
+    <span>New · <code>domains/software/ai-systems/deterministic-mediation-of-agents.md</code></span>
+    <span>New · <code>domains/software/ai-systems/mcp-stdio-server-surface.md</code></span>
+    <span>New · <code>domains/software/ai-systems/agent-tool-context-budget.md</code></span>
+    <span>New · <code>domains/software/security/subprocess-argument-injection.md</code></span>
+    <span>New · <code>domains/software/security/memory-safety-in-input-handling.md</code></span>
+    <span>New · <code>domains/software/languages-runtimes/shell-as-a-correctness-substrate.md</code></span>
+  </footer>
+</main>
