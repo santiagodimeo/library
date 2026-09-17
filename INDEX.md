@@ -39,10 +39,15 @@ Every note in the library, one line each: `- [Title](path) — the claim`.
 - [Deterministic mediation of agents](domains/software/ai-systems/deterministic-mediation-of-agents.md) — constraints hold only when a non-bypassable component outside the model enforces them; in-model defenses break and approval prompts decay
 - [MCP stdio server surface](domains/software/ai-systems/mcp-stdio-server-surface.md) — newline-delimited JSON-RPC on a pipe with a hard stdout rule, which keeps the surface small and makes every spawned subprocess a correctness hazard
 - [Agent tool context budget](domains/software/ai-systems/agent-tool-context-budget.md) — every reachable tool definition is a standing token cost and a selection-accuracy cost unless the host defers it
+- [Cognitive offloading](domains/software/ai-systems/cognitive-offloading.md) — offloading degrades the specific capability delegated, not general cognition, so the protective variable is who performs the generation step
 
 ## Hardware
 
 ## Philosophy
+
+### existence
+
+- [Anxiety as disclosure](domains/philosophy/existence/anxiety-as-disclosure.md) — anxiety is the awareness of freedom, not a malfunction, so the aim is learning to be anxious well rather than reaching a state without it
 
 ## Design
 
@@ -51,3 +56,9 @@ Every note in the library, one line each: `- [Title](path) — the claim`.
 - [Alert fatigue and batching](domains/design/interaction/alert-fatigue-and-batching.md) — repeated alerts lose acceptance measurably; a digest beats both real-time floods and silence
 
 ## Biology
+
+### psychology-behavior
+
+- [Verification as compulsion](domains/biology/psychology-behavior/verification-as-compulsion.md) — the treatable target is the response to a thought, not the thought or the order, so "does this structure require checking?" separates a habit from a ritual
+- [Media multitasking and attention](domains/biology/psychology-behavior/media-multitasking-attention.md) — the link is weak (pooled d = 0.17) and fails in the largest direct test, but blocking the affordance still works
+- [Maladaptive daydreaming](domains/biology/psychology-behavior/maladaptive-daydreaming.md) — a measurable construct at ~2.5% prevalence with heavy OCD overlap, a validated scale, and no validated treatment

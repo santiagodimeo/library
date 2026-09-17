@@ -1,0 +1,243 @@
+<title>Estructura sin verificación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  /* Library investigation — shared design system. Fill, don't redesign. */
+  :root {
+    --ground: #f6f7f5;
+    --surface: #ffffff;
+    --ink: #1a1e1c;
+    --muted: #5b6560;
+    --rule: #d9ded9;
+    --accent: #1e5a73;
+    --conflicts: #a5372a;
+    --extends: #8a5a00;
+    --confirms: #2e6a4a;
+    --new: #55606a;
+    --t1: #2e6a4a;
+    --t2: #2f5b8f;
+    --t3: #8a5a00;
+    --serif: "Literata", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+      --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+      --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #111513; --surface: #181d1a; --ink: #e2e7e4; --muted: #97a39c;
+    --rule: #2a322e; --accent: #86bfd6; --conflicts: #e38b7c; --extends: #d9a94a;
+    --confirms: #7fc39b; --new: #a3adb5; --t1: #7fc39b; --t2: #93b5e3; --t3: #d9a94a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 1.0625rem/1.68 var(--serif);
+    font-optical-sizing: auto;
+    padding: 0 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 42rem; margin: 0 auto; padding-block: 56px 88px; display: grid; gap: 40px; }
+  a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .eyebrow, .meta, .label, th, .chip, sup, .sources, .filed {
+    font-family: var(--mono);
+  }
+  header { display: grid; gap: 14px; }
+  .eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    font: 600 clamp(2rem, 5vw, 2.6rem)/1.12 var(--sans);
+    letter-spacing: -.015em; margin: 0; text-wrap: balance;
+  }
+  .question { font-style: italic; color: var(--muted); margin: 0; font-size: 1.125rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .8125rem; color: var(--muted); margin: 4px 0 0; padding: 0; list-style: none; }
+  .meta strong { color: var(--ink); font-weight: 500; }
+
+  .bottom-line {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 24px;
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+  .bottom-line p { margin: 0; }
+  .label { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+
+  section { display: grid; gap: 14px; }
+  h2 { font: 600 1.3rem/1.3 var(--sans); margin: 0; text-wrap: balance; letter-spacing: -.005em; }
+  section p { margin: 0; }
+  sup { font-size: .68em; line-height: 0; }
+  sup a { text-decoration: none; padding: 0 1px; }
+  blockquote { margin: 0; padding-left: 16px; border-left: 2px solid var(--rule); color: var(--muted); }
+
+  .table-wrap { overflow-x: auto; border-top: 1px solid var(--ink); }
+  table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.45; }
+  th { text-align: left; font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); }
+  td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td:first-child { min-width: 14rem; }
+  td:last-child { color: var(--muted); min-width: 10rem; }
+
+  .chip {
+    display: inline-block; font-size: .7rem; font-weight: 500; letter-spacing: .04em;
+    padding: 2px 7px; border-radius: 3px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .v-conflicts { color: var(--conflicts); }
+  .v-extends { color: var(--extends); }
+  .v-confirms { color: var(--confirms); }
+  .v-new { color: var(--new); }
+  .t1 { color: var(--t1); }
+  .t2 { color: var(--t2); }
+  .t3 { color: var(--t3); }
+
+  .flag { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+  section > p.empty { color: var(--muted); }
+  ul.open { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+
+  .sources { margin: 0; padding-left: 2.2em; font-size: .8125rem; line-height: 1.55; display: grid; gap: 10px; color: var(--muted); }
+  .sources li::marker { color: var(--muted); }
+  .sources .title { color: var(--ink); }
+  .sources a { word-break: break-word; }
+  .sources li:target { color: var(--ink); }
+
+  footer.filed { border-top: 1px solid var(--rule); padding-top: 16px; font-size: .75rem; color: var(--muted); display: grid; gap: 4px; }
+  footer.filed code { font-family: inherit; color: var(--ink); }
+
+  @media (max-width: 480px) {
+    main { padding-block: 32px 64px; gap: 32px; }
+    body { font-size: 1rem; }
+    .bottom-line { padding: 18px; font-size: 1.0625rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">Investigation · biology · philosophy</span>
+    <h1>Estructura sin verificación</h1>
+    <p class="question">¿Cómo aflojar el control sin perder la estructura que sí funciona?</p>
+    <ul class="meta">
+      <li>17 sep 2026</li>
+      <li>7 min de lectura</li>
+      <li>Confianza <strong>Media</strong> — la mecánica clínica está bien sostenida, pero tres de las piezas más citadas del tema no replican o están en disputa abierta</li>
+    </ul>
+  </header>
+
+  <div class="bottom-line">
+    <span class="label">Bottom line</span>
+    <p>El problema no es tu estructura: es la verificación que le colgás encima. La literatura clínica que sostiene el tratamiento de tu perfil no apunta a tener menos pensamientos ni a ordenar mejor, apunta a dejar de responderles — y esa distinción separa limpiamente lo que de tu sistema hay que conservar de lo que lo está alimentando. Lo que movería este veredicto es que la conducta de escribir y revisar notas resultara no tener función ansiolítica; si la tiene, es parte del ciclo, no su antídoto.</p>
+  </div>
+
+<section>
+  <h2>El ritual no es el orden, es la verificación</h2>
+  <p>La terapia metacognitiva define el objeto del tratamiento como el Síndrome Cognitivo-Atencional: «estrategias de afrontamiento disfuncionales que la persona emplea para intentar manejar pensamientos y sentimientos angustiantes… preocupación, rumiación, monitoreo de amenaza, estrategias de control del pensamiento, evitación y búsqueda de tranquilización».<sup><a href="#s1">1</a></sup> Ninguno de esos seis es un pensamiento. Los seis son <em>respuestas</em> a un pensamiento.</p>
+  <p>Eso da un discriminador que no depende de introspección: una estructura que corre sola es un hábito, una que requiere ser chequeada es un ritual. Tus cuatro sistemas —sueño, entrenamiento, comida, estudio— corren. Tus trece protocolos, el rediseño del sistema, la revisión del sistema y la nota sobre la nota, se chequean. Tu propia frase lo dice mejor que cualquier manual: «rediseñar un sistema es la forma que toma la ansiedad cuando aprendió a parecer productiva».</p>
+  <p>En la revisión más completa, la TMC rindió g = 2.06 (IC 95% [1.52–2.60]) contra lista de espera y g = 0.69 [0.36–1.03] contra TCC post-tratamiento, sobre 25 estudios y 780 pacientes, 15 de ellos ensayos aleatorizados.<sup><a href="#s1">1</a></sup> Con la advertencia que ponen los propios autores: «el riesgo de sesgo fue poco claro o alto en casi un tercio de los casos».<sup><a href="#s1">1</a></sup> Tomá la dirección como sólida y la magnitud como optimista.</p>
+  <p>La técnica que corresponde se llama <em>mindfulness desapegado</em>: «el paciente aprende a advertir los pensamientos disparadores internos y a desapegarse de ellos dando un paso atrás y desenganchando cualquier afrontamiento o procesamiento perseverante adicional».<sup><a href="#s1">1</a></sup> En tu bloque de estudio: el pensamiento aparece, no se lo combate ni se lo sigue, y la vista vuelve al renglón. La rep es volver al renglón, no que el pensamiento no venga.</p>
+</section>
+
+<section>
+  <h2>Tres cosas que tus notas dan por ciertas y la evidencia no sostiene</h2>
+  <p>Esto es lo más útil que encontré, porque las tres están escritas como hechos en <em>Nota para terapia</em> y en <em>Sobre el estudio y la atención</em>, y las tres cargan tu explicación de por qué no podés leer.</p>
+  <p><strong>El multitasking de medios.</strong> Wiradhany —autor del metaanálisis que suele citarse para esto— corrió después un estudio de 261 participantes y no encontró nada. Ni más divagación mental («añadir MMS como efecto fijo no mejoró significativamente el modelo, χ²(1) = 1.41, p = .236»), ni más vulnerabilidad a distractores externos (χ²(3) = 1.19, p = .754, con un factor de Bayes de 3698 a favor del modelo sin la interacción), ni peor rendimiento general (p = .121).<sup><a href="#s2">2</a></sup> El mismo trabajo reporta que en su metaanálisis previo, de 39 pruebas solo diez dieron significativas, con un efecto agrupado «débil (d de Cohen = .17)».<sup><a href="#s2">2</a></sup></p>
+  <p><strong>El oso blanco.</strong> La revisión de 2024 sobre supresión de pensamiento concluye que «estudios recientes desafían el dogma predominante de que la supresión lleva a mayor intrusión en la conciencia», señala que las instrucciones del paradigma original eran ambiguas, y llega a proponer que «es el momento de considerar más seriamente la supresión del pensamiento como herramienta terapéutica».<sup><a href="#s3">3</a></sup></p>
+  <p><strong>El estudio de los shocks.</strong> El hallazgo famoso de que la gente prefiere electrocutarse antes que quedarse pensando es más débil de lo que circula: «la mayoría de los participantes (57%) nunca se aplicó un shock, y solo una minoría pequeña (17%) se administró más de dos».<sup><a href="#s4">4</a></sup> El comentario argumenta que encontraron el pensar «algo disfrutable, algo entretenido y algo aburrido», y que hay un salto lógico entre «menos disfrutable que ver televisión» y «aversivo».<sup><a href="#s4">4</a></sup></p>
+  <p>Las tres apuntan en la misma dirección y es buena noticia: tu trabajo te entrenó menos de lo que creés, tu cabeza tolera el estado plano mejor de lo que asumís, y no necesitás pelearte con el pensamiento. Lo que queda en pie cuando se caen las tres es la parte que sí te toca: la respuesta.</p>
+</section>
+
+<section>
+  <h2>El daydreaming es evitación, y tiene nombre propio</h2>
+  <p>Existe como constructo medible. El punto de corte de la Maladaptive Daydreaming Scale está sobre 40 en una escala de 0 a 100; la prevalencia puntual estimada es 2,5% en población general y 8,5% entre 18 y 30 años.<sup><a href="#s5">5</a></sup> Lo que te importa: «en una muestra de 510 daydreamers, más de la mitad superó el punto de corte clínico para TOC sospechado».<sup><a href="#s5">5</a></sup> No es coincidencia: comparten el mecanismo, que es escapar hacia adentro de algo que incomoda.</p>
+  <p>La literatura es joven y los autores lo dicen: solo dos de cuatro muestras incluyeron entrevista clínica, y los resultados vienen de «muestras israelíes de tamaño modesto» que no necesariamente generalizan.<sup><a href="#s5">5</a></sup> Tratalo como una descripción útil, no como un diagnóstico.</p>
+  <p>La consecuencia práctica es que el daydreaming no se combate con foco. Es una conducta de evitación, y las conductas de evitación se tratan por el disparador. El tuyo ya está escrito: la rabia física al abrir el material y ver el volumen entero de golpe. Ese es el momento de exposición, no el momento de leer mejor.</p>
+</section>
+
+<section>
+  <h2>Tus reglas escritas son defensas in-model, y por eso decaen</h2>
+  <p>Acá la biblioteca ya tenía la respuesta, en otro dominio. <code>deterministic-mediation-of-agents</code> sostiene que una restricción se cumple solo cuando la impone un componente no evitable, fuera del modelo, porque una regla escrita en el prompt la interpreta el mismo componente que quiere romperla. «Prohibido CS ansioso y suelto» y «no rediseñar el sistema» son exactamente eso.</p>
+  <p>El experimento correspondiente existe. El bloqueo de internet móvil durante dos semanas, en un ensayo aleatorizado de 467 participantes, mejoró atención sostenida (dz = 0.24, p = .008), salud mental (dz = 0.57) y bienestar (dz = 0.46), con 90,7% mejorando en al menos una medida.<sup><a href="#s6">6</a></sup> Pero el dato que importa para vos es otro: solo 119 personas, el 25,5% de las que se comprometieron, lograron mantener el bloqueo activo 10 de 14 días.<sup><a href="#s6">6</a></sup> Tres de cada cuatro adultos motivados no pudieron sostener una restricción que ellos mismos habían elegido. Eso no es un problema de carácter; es la prueba de que el compromiso interno no es un mecanismo de control.</p>
+  <p>El puente entre intención y conducta que sí tiene respaldo son las intenciones de implementación —si pasa X, hago Y— con d = 0.65 (IC 95% [0.6, 0.7]) en el metaanálisis clásico de Gollwitzer y Sheeran.<sup><a href="#s7">7</a></sup> Moderá la expectativa: combinarlas con contraste mental, sobre 24 estudios y 15.907 participantes, rinde bastante menos, g = 0.336 [0.229, 0.443].<sup><a href="#s7">7</a></sup></p>
+</section>
+
+<section>
+  <h2>La IA no te hace más tonto: te hace más tonto en lo que no generaste</h2>
+  <p>El mejor análogo estudiado del offloading no es la IA, es el GPS. En 50 adultos, más experiencia acumulada de GPS se asoció a peor memoria espacial (r = −0.22 [−0.41, −0.01] y dos correlaciones más del mismo tamaño), y el déficit aparecía navegando <em>sin</em> GPS; en un seguimiento de 13 personas a 3,23 años, los autores descartan la dirección inversa.<sup><a href="#s8">8</a></sup> Admiten que «la muestra longitudinal fue pequeña» y que «son posibles correlaciones espurias».<sup><a href="#s8">8</a></sup> Efecto real, chico, causalidad apenas insinuada.</p>
+  <p>Sobre IA específicamente, lo que hay es autorreporte. En 319 trabajadores del conocimiento que aportaron 936 ejemplos reales de uso, mayor confianza en la IA predijo <em>menos</em> pensamiento crítico, y mayor confianza en uno mismo predijo <em>más</em>.<sup><a href="#s9">9</a></sup> Pero el hallazgo cualitativo es el que te sirve: la IA «desplaza la naturaleza del pensamiento crítico hacia la verificación de información, la integración de respuestas y la supervisión de la tarea».<sup><a href="#s9">9</a></sup> No lo elimina, lo reubica. El riesgo no es pensar menos; es no darte cuenta de que el trabajo cambió de lugar y dejar de hacerlo en el lugar nuevo.</p>
+  <p>Lo que sí replica es el otro lado: producir la respuesta uno mismo supera leerla. El efecto de testing ronda g = 0.50, se mantiene en g = 0.50 en aulas reales sobre 93 estudios, y transfiere a preguntas nuevas con d = 0.40.<sup><a href="#s10">10</a></sup> De ahí sale una regla operable que no te obliga a usar menos IA: la IA puede hacer cualquier paso de tu bloque de estudio menos el de generación. Podés usarla ocho horas en el trabajo sin costo para lo que estás aprendiendo, siempre que el intento de respuesta siga siendo tuyo y venga <em>antes</em> de mirar la salida del modelo.</p>
+</section>
+
+<section>
+  <h2>Dónde se rompe</h2>
+  <p>La terapia existencial casi no tiene evidencia fuera de oncología y cuidados paliativos, y en el seguimiento a dos años de la psicoterapia centrada en el sentido, sobre 170 supervivientes de cáncer aleatorizados, «hubo un decaimiento del efecto positivo de corto plazo sobre el sentido personal y de la mayoría de los efectos positivos relacionados con el bienestar psicológico» —aunque sí persistió el efecto sobre las relaciones con otros, d = 0.82.<sup><a href="#s11">11</a></sup> No es una intervención validada para un hombre sano de 29 con sensación de que «falta algo».</p>
+  <p>Watts es un divulgador, y la lectura de <em>wu wei</em> como «no hacer nada» es, según la SEP, una mala interpretación neoconfuciana y no una prescripción daoísta.<sup><a href="#s12">12</a></sup> Epicteto también es más radical que su versión moderna: los externos no son difíciles de controlar, son <em>indiferentes en valor</em>, que es una tesis metafísica y no un consejo de manejo del estrés.<sup><a href="#s13">13</a></sup></p>
+  <p>Lo que sí resiste es Kierkegaard, y es lo más cercano a una tesis unificadora: la angustia «no es meramente una condición patológica sintomática de enfermedad, sino parte de la condición humana misma. Es una conciencia de la libertad», y «quien ha aprendido a angustiarse del modo correcto ha aprendido lo último».<sup><a href="#s14">14</a></sup> No dice que se elimine. Dice que se aprende a tenerla bien. Es la misma frase que escribiste solo: la rep real es el martes aburrido en el que no fuiste a buscar la salida.</p>
+</section>
+
+<section>
+  <h2>Against the library</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Claim</th><th>Verdict</th><th>Library note</th></tr></thead>
+      <tbody>
+          <tr><td>Una regla de autocontrol escrita por uno mismo es una defensa in-model y decae; solo una restricción externa no evitable se sostiene — el 74,5% de adultos motivados no logró mantener su propio bloqueo</td><td><span class="chip v-extends">Extends</span></td><td>deterministic-mediation-of-agents — lo probado para agentes LLM aplica al mismo sujeto que escribe la regla</td></tr>
+          <tr><td>Apagar notificaciones del todo aumenta ansiedad; agruparlas gana</td><td><span class="chip v-extends">Extends</span></td><td>alert-fatigue-and-batching — refuerza que la palanca es la cadencia, no el silencio</td></tr>
+          <tr><td>El objetivo clínico es la respuesta al pensamiento, no el pensamiento</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>El vínculo entre multitasking de medios y atención no replica (d = 0.17)</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>El daydreaming excesivo es un constructo medible con alta comorbilidad TOC</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          <tr><td>El offloading degrada específicamente la capacidad delegada, no la cognición general</td><td><span class="chip v-new">New</span></td><td>—</td></tr>
+          </tbody>
+    </table>
+  </div>
+  <p>Lo que se movió: la biblioteca ya sabía, en <code>ai-systems</code>, que una restricción solo vale si la impone algo externo al componente restringido. Ese resultado no era sobre software. Era sobre cualquier sistema que se autorregula, incluido el que escribe las reglas en Apple Notes.</p>
+</section>
+
+<section>
+  <h2>Open questions</h2>
+  <ul class="open">
+    <li>Si escribir notas tiene función ansiolítica, ¿reducirlas es exposición o es perder el andamiaje que sostiene los cuatro sistemas?</li>
+    <li>El bloqueo de internet móvil midió atención con gradCPT, no lectura sostenida de 90 minutos. Nadie midió lo segundo.</li>
+    <li>No hay evidencia de tratamiento para daydreaming excesivo: el constructo está validado, la intervención no.</li>
+    <li>La mudanza a México rompe el contexto de todos los hábitos a la vez. Nada en esta evidencia dice qué sobrevive a un cambio de país.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Sources</h2>
+  <ol class="sources">
+      <li id="s1"><span class="title">Normann N., Morina N. "The Efficacy of Metacognitive Therapy: A Systematic Review and Meta-Analysis."</span> <em>Frontiers in Psychology</em>, 2018. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6246690/">pmc.ncbi.nlm.nih.gov/articles/PMC6246690/</a> <span class="chip t1">T1</span></li>
+      <li id="s2"><span class="title">Wiradhany W., van Vugt M.K., Nieuwenstein M.R. "Media multitasking, mind-wandering, and distractibility: A large-scale study."</span> <em>Attention, Perception &amp; Psychophysics</em>, 2020. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7303060/">pmc.ncbi.nlm.nih.gov/articles/PMC7303060/</a> <span class="chip t1">T1</span></li>
+      <li id="s3"><span class="title">Mamat Z., Levy D.A., Bayley P.J. "Reconsidering thought suppression and ironic processing."</span> <em>Frontiers in Psychology</em>, 2024. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11669253/">pmc.ncbi.nlm.nih.gov/articles/PMC11669253/</a> <span class="chip t1">T1</span></li>
+      <li id="s4"><span class="title">Fox K.C., Thompson E., Andrews-Hanna J.R., Christoff K. "Is thinking really aversive? A commentary on Wilson et al."</span> <em>Frontiers in Psychology</em>, 2014. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4260464/">pmc.ncbi.nlm.nih.gov/articles/PMC4260464/</a> <span class="chip t1">T1</span></li>
+      <li id="s5"><span class="title">Soffer-Dudek N., Somer E. "Maladaptive Daydreaming: Epidemiological Data on a Newly Identified Syndrome."</span> <em>Frontiers in Psychiatry</em>, 2022. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9091653/">pmc.ncbi.nlm.nih.gov/articles/PMC9091653/</a> <span class="chip t1">T1</span></li>
+      <li id="s6"><span class="title">Castelo N., Kushlev K., Ward A.F., Esterman M., Reiner P.B. "Blocking mobile internet on smartphones improves sustained attention, mental health, and subjective well-being."</span> <em>PNAS Nexus</em>, 2025. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11834938/">pmc.ncbi.nlm.nih.gov/articles/PMC11834938/</a> <span class="chip t1">T1</span></li>
+      <li id="s7"><span class="title">Wang G., Wang Y., Gai X. "A Meta-Analysis of the Effects of Mental Contrasting With Implementation Intentions on Goal Attainment."</span> <em>Frontiers in Psychology</em>, 2021. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8149892/">pmc.ncbi.nlm.nih.gov/articles/PMC8149892/</a> <span class="chip t1">T1</span> <span class="flag">· reporta d = 0.65 de Gollwitzer y Sheeran 2006</span></li>
+      <li id="s8"><span class="title">Dahmani L., Bohbot V.D. "Habitual use of GPS negatively impacts spatial memory during self-guided navigation."</span> <em>Scientific Reports</em>, 2020. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7156656/">pmc.ncbi.nlm.nih.gov/articles/PMC7156656/</a> <span class="chip t1">T1</span></li>
+      <li id="s9"><span class="title">Lee H.-P., Sarkar A., Tankelevitch L., Drosos I., Rintel S., Banks R., Wilson N. "The Impact of Generative AI on Critical Thinking."</span> <em>CHI ’25</em>, 2025. <a href="https://doi.org/10.1145/3706598.3713778">doi.org/10.1145/3706598.3713778</a> <span class="chip t1">T1</span></li>
+      <li id="s10"><span class="title">Green M.L. et al. "The Use of Retrieval Practice in the Health Professions: A State-of-the-Art Review."</span> <em>Perspectives on Medical Education</em>, 2025. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12292765/">pmc.ncbi.nlm.nih.gov/articles/PMC12292765/</a> <span class="chip t1">T1</span> <span class="flag">· reporta Rowland 2014, Pan y Rickard 2018, Yang et al. 2021</span></li>
+      <li id="s11"><span class="title">van der Spek N. et al. "Long-term efficacy of meaning-centered group psychotherapy for cancer survivors."</span> <em>Psycho-Oncology</em>, 2020. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7199891/">pmc.ncbi.nlm.nih.gov/articles/PMC7199891/</a> <span class="chip t1">T1</span></li>
+      <li id="s12"><span class="title">Hansen C. "Daoism."</span> <em>Stanford Encyclopedia of Philosophy</em>. <a href="https://plato.stanford.edu/entries/daoism/">plato.stanford.edu/entries/daoism/</a> <span class="chip t1">T1</span></li>
+      <li id="s13"><span class="title">"Epictetus."</span> <em>Stanford Encyclopedia of Philosophy</em>. <a href="https://plato.stanford.edu/entries/epictetus/">plato.stanford.edu/entries/epictetus/</a> <span class="chip t1">T1</span></li>
+      <li id="s14"><span class="title">"Søren Kierkegaard."</span> <em>Stanford Encyclopedia of Philosophy</em>. <a href="https://plato.stanford.edu/entries/kierkegaard/">plato.stanford.edu/entries/kierkegaard/</a> <span class="chip t1">T1</span></li>
+      <li id="s15"><span class="title">"Existentialism."</span> <em>Stanford Encyclopedia of Philosophy</em>. <a href="https://plato.stanford.edu/entries/existentialism/">plato.stanford.edu/entries/existentialism/</a> <span class="chip t1">T1</span></li>
+  </ol>
+</section>
+
+<footer class="filed">
+  <span>Filed to the library</span>
+  <span>New · <code>domains/biology/psychology-behavior/verification-as-compulsion.md</code></span>
+  <span>New · <code>domains/biology/psychology-behavior/media-multitasking-attention.md</code></span>
+  <span>New · <code>domains/biology/psychology-behavior/maladaptive-daydreaming.md</code></span>
+  <span>New · <code>domains/software/ai-systems/cognitive-offloading.md</code></span>
+  <span>New · <code>domains/philosophy/existence/anxiety-as-disclosure.md</code></span>
+</footer>
+</main>

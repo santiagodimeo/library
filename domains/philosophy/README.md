@@ -12,3 +12,4 @@ winner; they state the position precisely and name who holds it.
 | `science` | Explanation, causation, models, scientific realism | SEP, BJPS, Philosophy of Science |
 | `political` | Justice, legitimacy, liberty, institutions | SEP, primary texts |
 | `history` | Figures and traditions, read through primary texts | Gutenberg, Perseus, SEP |
+| `existence` | Anxiety, freedom, authenticity, meaning, the self as a project | SEP, IEP, primary texts |

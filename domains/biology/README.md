@@ -11,3 +11,4 @@ and a systematic review beats any single study.
 | `physiology-health` | Exercise, nutrition, endocrinology, aging | Cochrane, BMJ, NEJM, PubMed |
 | `evolution-ecology` | Selection, speciation, ecosystems, microbiome | PNAS, Science, PLOS |
 | `immunology` | Innate and adaptive immunity, vaccines | Nature Reviews Immunology, Lancet |
+| `psychology-behavior` | Clinical psychology, attention, habit, cognition as measured behaviour | Cochrane, PubMed/PMC, Psych Science, Annual Reviews |
